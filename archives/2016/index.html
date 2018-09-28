@@ -86,7 +86,7 @@
     root: '/',
     scheme: 'Mist',
     version: '6.4.1',
-    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    sidebar: {"position":"left","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: false,
     fastclick: false,
     lazyload: false,
@@ -226,6 +226,14 @@
         
         
           
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于</a>
+  </li>
+        
+        
+        
+          
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
       <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
@@ -242,17 +250,9 @@
         
         
           
-          <li class="menu-item menu-item-时间线 menu-item-active">
+          <li class="menu-item menu-item-archives menu-item-active">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />时间线</a>
-  </li>
-        
-        
-        
-          
-          <li class="menu-item menu-item-关于我">
-    <a href="/about/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
   </li>
 
       
@@ -754,7 +754,7 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives">
+                  <a href="/archives/">
                 
                     <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">日志</span>
@@ -1031,31 +1031,6 @@
 
 
 
-
-  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
-  
-  
-  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
-  
-  <script type="text/javascript">
-    var GUEST = ['nick','mail','link'];
-    var guest = 'nick,mail';
-    guest = guest.split(',').filter(function (item) {
-      return GUEST.indexOf(item)>-1;
-    });
-    new Valine({
-        el: '#comments' ,
-        verify: false,
-        notify: false,
-        appId: 'i0SA4LOQInR8ngFx36fhlm0m-gzGzoHsz',
-        appKey: 'rD8FtGSl0WaXjfp6kItztJQo',
-        placeholder: '你有什么想对我说的？',
-        avatar:'mm',
-        meta:guest,
-        pageSize:'5' || 10,
-        visitor: true
-    });
-  </script>
 
 
 
