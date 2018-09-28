@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.4.1" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.4.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.4.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.4.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.4.1" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.4.1',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="最近在看JS中继承和对象的知识。发现不论是继承还是对象，都不停的出现prototype和__proto__,即原型相关的知识。所以做了一些总结和整理。在JS中没有类和继承的说法，但是有原型和原型链，能够实现同样的功能，只是叫法不一样，有很多人习惯了Java等语言的习惯，还是把这些叫做类和继承，其实是非常不合适的一种叫法，其实如果用JS的思想来理解的话，其实原型和原型链更好理解一些。这里就是对原型的">
+<meta name="keywords" content="原型">
+<meta property="og:type" content="article">
+<meta property="og:title" content="显式原型和隐式原型的关系">
+<meta property="og:url" content="ovenzeze.github.io/prototype-and-__proto__/index.html">
+<meta property="og:site_name" content="CLAY的个人博客">
+<meta property="og:description" content="最近在看JS中继承和对象的知识。发现不论是继承还是对象，都不停的出现prototype和__proto__,即原型相关的知识。所以做了一些总结和整理。在JS中没有类和继承的说法，但是有原型和原型链，能够实现同样的功能，只是叫法不一样，有很多人习惯了Java等语言的习惯，还是把这些叫做类和继承，其实是非常不合适的一种叫法，其实如果用JS的思想来理解的话，其实原型和原型链更好理解一些。这里就是对原型的">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-09-27T10:13:34.146Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="显式原型和隐式原型的关系">
+<meta name="twitter:description" content="最近在看JS中继承和对象的知识。发现不论是继承还是对象，都不停的出现prototype和__proto__,即原型相关的知识。所以做了一些总结和整理。在JS中没有类和继承的说法，但是有原型和原型链，能够实现同样的功能，只是叫法不一样，有很多人习惯了Java等语言的习惯，还是把这些叫做类和继承，其实是非常不合适的一种叫法，其实如果用JS的思想来理解的话，其实原型和原型链更好理解一些。这里就是对原型的">
+
+
+
+
+
+
+  <link rel="canonical" href="ovenzeze.github.io/prototype-and-__proto__/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>显式原型和隐式原型的关系 | CLAY的个人博客</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">CLAY的个人博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-时间线">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />时间线</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-关于我">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="ovenzeze.github.io/prototype-and-__proto__/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CLAY">
+      <meta itemprop="description" content="技术，音乐和生活。<br>Free  Open  Share">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="CLAY的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">显式原型和隐式原型的关系
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2016-10-23 17:42:08" itemprop="dateCreated datePublished" datetime="2016-10-23T17:42:08+08:00">2016-10-23</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-09-27 18:13:34" itemprop="dateModified" datetime="2018-09-27T18:13:34+08:00">2018-09-27</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/基础知识/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/prototype-and-__proto__/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/prototype-and-__proto__/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/prototype-and-__proto__/" class="leancloud_visitors" data-flag-title="显式原型和隐式原型的关系">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数：</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近在看JS中继承和对象的知识。发现不论是继承还是对象，都不停的出现<code>prototype</code>和<code>__proto__</code>,即原型相关的知识。所以做了一些总结和整理。<br>在JS中没有类和继承的说法，但是有原型和原型链，能够实现同样的功能，只是叫法不一样，有很多人习惯了Java等语言的习惯，还是把这些叫做类和继承，其实是非常不合适的一种叫法，其实如果用JS的思想来理解的话，其实原型和原型链更好理解一些。<br>这里就是对原型的一些理解和知识整理。有了原型的知识，原型链就很好理解了。<br><a id="more"></a></p>
+<h1 id="1：-proto-和prototype"><a href="#1：-proto-和prototype" class="headerlink" title="1：[[proto]]和prototype"></a>1：[[proto]]和prototype</h1><p>准备知识：<br>1.在JS里，万物皆对象。方法<code>Function</code>是对象，方法的原型<code>Function.prototype</code>是对象。因此，它们都会具有对象共有的特点。<br>即：对象具有属性<code>__proto__</code>，可称为<code>隐式原型</code>，一个对象的<code>隐式原型</code>指向<code>构造该对象的构造函数的原型</code>，这也保证了实例能够访问在构造函数原型中定义的属性和方法。</p>
+<blockquote>
+<p>访问构造函数原型的方法，<code>__proto__</code>,前后是两个英文状态下下划线，不要写错了。</p>
+</blockquote>
+<h2 id="1-1：显式原型"><a href="#1-1：显式原型" class="headerlink" title="1.1：显式原型"></a>1.1：显式原型</h2><p>每一个函数在创建之后都会拥有一个名为<code>prototype</code>的属性，这个属性指向函数的原型对象。</p>
+<blockquote>
+<p>通过Function.prototype.bind方法构造出来的函数是个例外，它没有prototype属性。</p>
+</blockquote>
+<h2 id="1-2：隐式原型"><a href="#1-2：隐式原型" class="headerlink" title="1.2：隐式原型"></a>1.2：隐式原型</h2><p><code>JavaScript</code>中任意对象都有一个内置属性<code>[[prototype]]</code>，在ES5之前没有标准的方法访问这个内置属性，但是大多数浏览器都支持通过<code>__proto__</code>来访问。ES5中有了对于这个内置属性标准的Get方法<code>Object.getPrototypeOf().</code></p>
+<blockquote>
+<p><code>Object.prototype</code> 这个对象是个例外，它的<code>__proto__</code>值为null</p>
+</blockquote>
+<p>二者的关系：</p>
+<ul>
+<li>隐式原型指向创建这个对象的（构造函数）函数(<code>constructor</code>)的显式原型；</li>
+<li>构造函数的<code>__proto__</code>指向构造构造函数的原型对象，对于函数来说就是<code>function.prototype</code>;</li>
+<li>构造函数的原型对象也有<code>__proto__</code>,同理它指向构造原型对象的构造函数(即<code>function</code>)的原型对象，即<code>object.prototype</code>;</li>
+</ul>
+<h2 id="1-3：构造函数的隐式原型"><a href="#1-3：构造函数的隐式原型" class="headerlink" title="1.3：构造函数的隐式原型"></a>1.3：构造函数的隐式原型</h2><p>既然是构造函数，是一个函数，所以它是<code>Function</code>的一个实例，所以他的隐式原型指向其构造函数<code>Function</code>的显式原型（<code>prototype</code>属性）。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">Array._proto_ === Function.prototype</div><div class="line">//true</div><div class="line">//需要注意的是：</div><div class="line">Object.__proto__ === Function.prototype</div><div class="line">//true</div><div class="line">Function.__proto__ === Function.prototype</div><div class="line">//true</div></pre></td></tr></table></figure></p>
+<p>在这里，<code>Object</code>对象也是一个构造函数，所以它的隐式原型指向<code>Function</code>的显式原型。而<code>Function</code>也是一个构造函数（用来构造<code>Function</code>对象的构造函数），记住前面说过的，一个对象的隐式原型指向它的构造函数的显式原型，所以它的隐式原型指向构造<code>Function</code>的构造函数（这里还是<code>Function</code>）的显式原型。这里不是很好理解，如果不理解的话，大家可以把前面的内容好好看几遍。</p>
+<h2 id="1-4：构造函数的显式原型的隐式原型"><a href="#1-4：构造函数的显式原型的隐式原型" class="headerlink" title="1.4：构造函数的显式原型的隐式原型"></a>1.4：构造函数的显式原型的隐式原型</h2><p>前面说过，只要是对象都有隐式原型，那么作为构造函数的显式原型也是对象，它隐式原型是什么呢?</p>
+<p>内建对象：<br>最常用的构造函数就是内建对象，如常用的<code>Array、String、Function、Number、Boolean、Object、regExp、Date</code>等，内建对象的显式原型的隐式原型指向的构造函数的显式原型即<code>Object.prototype</code>，因为所有的对象都是基于<code>Object</code>创建的。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Array.prototype.__proto__ === Object.prototype</div><div class="line">//true</div><div class="line">Date.prototype.__proto__ === Object.prototype</div><div class="line">//true</div></pre></td></tr></table></figure></p>
+<p>自定义对象：<br>默认情况下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">function Foo()&#123;&#125;</div><div class="line">var foo = new Foo()</div><div class="line">Foo.prototype.__proto__ === Object.prototype //true 理由同上</div></pre></td></tr></table></figure></p>
+<p>其他情况：继承<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Function Foo( )&#123; &#125;;</div><div class="line">var bar.prototype = new Foo( );</div><div class="line">bar.prototype.__proto__ === Foo.prototype;//true</div></pre></td></tr></table></figure></p>
+<p>其他情况：重写prototype<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">//我们不想让Foo继承谁，但是我们要自己重新定义Foo.prototype</div><div class="line">Foo.prototype = &#123;</div><div class="line">  a:10,</div><div class="line">  b:-10</div><div class="line">&#125;</div><div class="line">//这种方式就是用了对象字面量的方式来创建一个对象，根据前文所述</div><div class="line">Foo.prototype.__proto__ === Object.prototype//true</div></pre></td></tr></table></figure></p>
+<p>后两种方式都手动的改变的<code>Foo</code>的<code>prototype</code>属性，所以<code>Foo.prototype</code>的<code>constructor</code>属性也随之改变，于是不再指回原来的构造函数<code>Foo()</code>.<br>那么怎么判断一个方法是函数本身就有的，还是原型上的呢？</p>
+<h1 id="2：几个例子"><a href="#2：几个例子" class="headerlink" title="2：几个例子"></a>2：几个例子</h1><p>我们有一个<code>hasOwnProperty()</code>方法可以检测一个属性是存在于实例中还是存在于原型中。这个方法是从<code>Object</code>上继承而来的。在给定的属性存在于对象实例中时，该方法会返回true。<br>举个栗子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">function person（）&#123;</div><div class="line">Person.prototype.name= “ovenzeze”;</div><div class="line">&#125;</div><div class="line">var person1 = new Person();</div><div class="line">console.log(person1.hasOwnProperty(&quot;name&quot;));</div><div class="line">//false</div><div class="line">person1.name = &quot;ovenzhang&quot;;</div><div class="line">console.log(person1.hasOwnProperty(&quot;name&quot;));</div><div class="line">//true</div></pre></td></tr></table></figure></p>
+<p>通过使用<code>hasOwnProperty()</code>方法，就可以很方便的判断一个属性是属于原型还是属于实例。<br>同时，有了上面对原型和原型链知识的理解，就很好理解下面的例子了。大家也可以自己先试着理解一下，看看自己有没有真的理解部分内容。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Function instanceof Object // true</div><div class="line">Object instanceof Function // true</div><div class="line">Function instanceof Function //true</div><div class="line">Object instanceof Object // true</div><div class="line">Number instanceof Number //false</div></pre></td></tr></table></figure></p>
+<p>这里，<code>instanceof</code>操作符判断的是左边的对象是否是右边构造函数的实例。<br>有了上面原型的知识这里应该不难理解：<br><code>Function</code>首先是个对象，所以它是对象的构造函数（<code>Object</code>）的一个实例，所以为<code>true</code>；<br><code>Object</code>这个对象，是<code>Object</code>类型的构造函数，它是一个函数，所以他是函数的构造函数（<code>Function</code>）的实例，所以为<code>true</code>;<br><code>Function</code>是<code>Function</code>类型的构造函数，它是一个函数，既然是函数，它肯定是函数的构造函数（<code>Function</code>）的实例，所以为<code>true</code>；<br>同理，下面的两个就很好理解了。<br>在这里，<code>instanceof</code>大的原理可以这样理解。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">//设 L instanceof R</div><div class="line">//通过判断</div><div class="line">L.__proto__.__proto__ ..... === R.prototype ？</div><div class="line">//最终返回true or false</div></pre></td></tr></table></figure></p>
+<p>如果你能理解，这几个例子，那么你对<code>[[proto]]</code>和<code>prototype</code>就理解的差不多，理解这个原型链就更好理解了。就是通过<code>[[proto]]</code>实现的一层一层的继承关系。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>CLAY</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="ovenzeze.github.io/prototype-and-__proto__/" title="显式原型和隐式原型的关系">ovenzeze.github.io/prototype-and-__proto__/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/原型/" rel="tag"># 原型</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/sync-asyn-and-sigle-thread/" rel="next" title="单线程JS实现异步操作的原理">
+                <i class="fa fa-chevron-left"></i> 单线程JS实现异步操作的原理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/some-method-of-create-object/" rel="prev" title="JS中创建对象的几种方式">
+                JS中创建对象的几种方式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpeg"
+                alt="CLAY" />
+            
+              <p class="site-author-name" itemprop="name">CLAY</p>
+              <p class="site-description motion-element" itemprop="description">技术，音乐和生活。<br>Free  Open  Share</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">15</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/ovenzeze" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:ovenzeze@qq.com" target="_blank" title="Mail"><i class="fa fa-fw fa-envelope"></i>Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1：-proto-和prototype"><span class="nav-number">1.</span> <span class="nav-text">1：[[proto]]和prototype</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1：显式原型"><span class="nav-number">1.1.</span> <span class="nav-text">1.1：显式原型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2：隐式原型"><span class="nav-number">1.2.</span> <span class="nav-text">1.2：隐式原型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3：构造函数的隐式原型"><span class="nav-number">1.3.</span> <span class="nav-text">1.3：构造函数的隐式原型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4：构造函数的显式原型的隐式原型"><span class="nav-number">1.4.</span> <span class="nav-text">1.4：构造函数的显式原型的隐式原型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2：几个例子"><span class="nav-number">2.</span> <span class="nav-text">2：几个例子</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heartbeat"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CLAY</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.4.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.4.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.4.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.4.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.4.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  
+  
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'i0SA4LOQInR8ngFx36fhlm0m-gzGzoHsz',
+        appKey: 'rD8FtGSl0WaXjfp6kItztJQo',
+        placeholder: '你有什么想对我说的？',
+        avatar:'mm',
+        meta:guest,
+        pageSize:'5' || 10,
+        visitor: true
+    });
+  </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

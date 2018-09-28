@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.4.1" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.4.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.4.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.4.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.4.1" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.4.1',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="我们都知道javascript是典型的单线程执行环境，也就是说在同一时刻，只有一段代码可以执行，如果这段代码执行过程中出现阻塞，那么程序就停在这里，无法继续下去。表现在用户这里，就是浏览器出现假死，无法响应操作，于是出现了异步操作，那么单线程的JS是怎么实现异步操作的呢？其实异步是对于一整个流程来说的，比如在浏览器下运行时的JS，或者是在Node环境下运行的JS，对于JS的代码执行来说，不存在异步">
+<meta name="keywords" content="运行机制,单线程,异步">
+<meta property="og:type" content="article">
+<meta property="og:title" content="单线程JS实现异步操作的原理">
+<meta property="og:url" content="ovenzeze.github.io/sync-asyn-and-sigle-thread/index.html">
+<meta property="og:site_name" content="CLAY的个人博客">
+<meta property="og:description" content="我们都知道javascript是典型的单线程执行环境，也就是说在同一时刻，只有一段代码可以执行，如果这段代码执行过程中出现阻塞，那么程序就停在这里，无法继续下去。表现在用户这里，就是浏览器出现假死，无法响应操作，于是出现了异步操作，那么单线程的JS是怎么实现异步操作的呢？其实异步是对于一整个流程来说的，比如在浏览器下运行时的JS，或者是在Node环境下运行的JS，对于JS的代码执行来说，不存在异步">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-09-27T10:13:34.147Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="单线程JS实现异步操作的原理">
+<meta name="twitter:description" content="我们都知道javascript是典型的单线程执行环境，也就是说在同一时刻，只有一段代码可以执行，如果这段代码执行过程中出现阻塞，那么程序就停在这里，无法继续下去。表现在用户这里，就是浏览器出现假死，无法响应操作，于是出现了异步操作，那么单线程的JS是怎么实现异步操作的呢？其实异步是对于一整个流程来说的，比如在浏览器下运行时的JS，或者是在Node环境下运行的JS，对于JS的代码执行来说，不存在异步">
+
+
+
+
+
+
+  <link rel="canonical" href="ovenzeze.github.io/sync-asyn-and-sigle-thread/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>单线程JS实现异步操作的原理 | CLAY的个人博客</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">CLAY的个人博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-时间线">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />时间线</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-关于我">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="ovenzeze.github.io/sync-asyn-and-sigle-thread/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CLAY">
+      <meta itemprop="description" content="技术，音乐和生活。<br>Free  Open  Share">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="CLAY的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">单线程JS实现异步操作的原理
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2016-10-11 19:52:24" itemprop="dateCreated datePublished" datetime="2016-10-11T19:52:24+08:00">2016-10-11</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-09-27 18:13:34" itemprop="dateModified" datetime="2018-09-27T18:13:34+08:00">2018-09-27</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/基础知识/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/sync-asyn-and-sigle-thread/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/sync-asyn-and-sigle-thread/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/sync-asyn-and-sigle-thread/" class="leancloud_visitors" data-flag-title="单线程JS实现异步操作的原理">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数：</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>我们都知道<code>javascript</code>是典型的单线程执行环境，也就是说在同一时刻，只有一段代码可以执行，如果这段代码执行过程中出现阻塞，那么程序就停在这里，无法继续下去。<br>表现在用户这里，就是浏览器出现假死，无法响应操作，于是出现了异步操作，那么单线程的<code>JS</code>是怎么实现异步操作的呢？<br>其实异步是对于一整个流程来说的，比如在浏览器下运行时的JS，或者是在Node环境下运行的JS，对于JS的代码执行来说，不存在异步的情况。<br>下面就让我们来看看所谓JS异步操作的真面目。<br>在理解这个过程之前，我们需要先理解几个概念。<br><a id="more"></a></p>
+<h1 id="1：JS运行时的线程"><a href="#1：JS运行时的线程" class="headerlink" title="1：JS运行时的线程"></a>1：JS运行时的线程</h1><p>我们一直说JS是单线程的语言，这里更确切的说是执行JS代码的JS引擎是单线程，但是在实际的使用环境中，还有由宿主环境提供的一些线程，比如在浏览器中有<code>DOM</code>操作相关的线程、处理<code>AJAX</code>请求的相关线程、定时器线程，在Node中有文件读取相关的线程等。这里我们统称为工作线程，而执行JS代码的线程我们称之为主线程。</p>
+<h1 id="2：同步和异步的区别"><a href="#2：同步和异步的区别" class="headerlink" title="2：同步和异步的区别"></a>2：同步和异步的区别</h1><blockquote>
+<p>同步就是一次只能执行一个任务，只有当前任务结束了才可以继续执行下一个任务，异步就是在执行一个需要花费很长时间的任务时，在具体工作的时间里，可以继续执行下一个任务，当之前的任务执行完成时，继续需要执行的部分。</p>
+</blockquote>
+<p>这里以AJAX请求为例，举个例子：</p>
+<p>异步的AJAX：</p>
+<blockquote>
+<ul>
+<li>主线程：“你好，AJAX线程。请你帮我发个HTTP请求吧，我把请求地址和参数都给你了。”</li>
+<li>AJAX线程：“好的，主线程。我马上去发，但可能要花点儿时间呢，你可以先去忙别的。”</li>
+<li>主线程：：“谢谢，你拿到响应后告诉我一声啊。”<br>(接着，主线程做其他事情去了。一顿饭的时间后，它收到了响应到达的通知。)</li>
+</ul>
+</blockquote>
+<p>而对于同步的AJAX则是这种情况：</p>
+<p>同步的AJAX：</p>
+<blockquote>
+<ul>
+<li>主线程：“你好，AJAX线程。请你帮我发个HTTP请求吧，我把请求地址和参数都给你了。”</li>
+<li>AJAX线程：“……”</li>
+<li>主线程：：“喂，AJAX线程，你怎么不说话？”</li>
+<li>AJAX线程：“……”</li>
+<li>主线程：：“喂！喂喂喂！”</li>
+<li>AJAX线程：“……”(一炷香的时间后)</li>
+<li>主线程：：“喂！求你说句话吧！”</li>
+<li>AJAX线程：“主线程，不好意思，我在工作的时候不能说话。你的请求已经发完了，拿到响应数据了，给你。”</li>
+</ul>
+</blockquote>
+<p>大家可以很直观的看到，同步的AJAX在请求的时候，有一段时间是完全失去响应的，但是如果这段时间很长，就会使浏览器长时间的失去响应，用户体验就非常不好了，而异步的操作就不会出现这种问题，在等待请求结果的时候，主线程可以继续执行别的操作，直到有响应了再继续执行之前的任务。</p>
+<h1 id="3：异步操作的过程"><a href="#3：异步操作的过程" class="headerlink" title="3：异步操作的过程"></a>3：异步操作的过程</h1><blockquote>
+<p>JS中异步操作其实是主线程执行到异步函数时发起异步操作请求，工作线程接收到请求就会返回请求yi接收的通知（回调发起函数的返回值）给主线程，主线程于是就继续执行其他的操作，在工作线程完成请求之后，就将请求结果返回给主线程，主线程用工作线程请求回来的数据继续执行后续的操作(回调函数)。</p>
+</blockquote>
+<p>对于执行JS代码的主线程来说，异步操作其实只有两个过程：</p>
+<blockquote>
+<p>1： 异步操作发起函数（注册函数）；<br>2： 异步结果处理函数（回调函数）；</p>
+</blockquote>
+<p>举个例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">setTimeout(fn,1000)</div><div class="line">//每隔1000ms执行一次fn函数</div></pre></td></tr></table></figure></p>
+<p>其中，<code>setTimeout</code>是异步操作的发起函数，<code>fn</code>即异步结果处理函数，回调函数。<br>也许很多人还有疑问，每隔<code>1000ms</code>执行一次<code>fn</code>函数，那么这个计时功能是谁来实现的呢？这无法通过异步来实现，因为计时要求是时刻占用的一个进程。这时候，就需要了解一下JS的消息队列和事件循环了。</p>
+<h1 id="4：消息队列和事件循环"><a href="#4：消息队列和事件循环" class="headerlink" title="4：消息队列和事件循环"></a>4：消息队列和事件循环</h1><blockquote>
+<p>消息队列：消息队列是JS中先进先出，后进后出的队列，里面存放着各种JS需要执行的消息。<br>事件循环：JS引擎其实就是不断的从消息队列中取消息、执行消息的过程</p>
+</blockquote>
+<p>实际上，主线程执行的程序就是来自<code>消息队列</code>，当主线程的当前代码执行完毕时，就会去<code>消息队列</code>中取消息，执行消息，取消息，直至<code>消息队列</code>为空，主线程就进入空闲状态。而取一个消息并执行的过程就叫一个<code>事件循环</code>。<br>这样说的话，消息队列中存放的就是可以执行的代码是吗？这句话对，但是不全对。<br>实际上，主线程在发起<code>AJAX</code>请求后，会继续执行其他代码。<code>AJAX</code>线程负责请求，拿到响应后，它会把响应封装成一个<code>JavaScript对象</code>，然后构造一条消息：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">// 消息队列中的消息就长这个样子</div><div class="line">var message = function () &#123;</div><div class="line">    callbackFn(response);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><code>callbackFn</code>就是异步操作中的结果处理函数。（回调函数）<br>通过这种方式，达到了异步的目的，但是主线程是单线程并没有改变，所以这句话是对的。</p>
+<h1 id="5：总结"><a href="#5：总结" class="headerlink" title="5：总结"></a>5：总结</h1><p>在<code>ECMAScript 262</code>规范中，并没有对异步、事件队列等概念及其实现的描述。这些都是具体的JavaScript运行时环境使用的机制（浏览器、Node等宿主环境提供的）。本文重点是描述异步过程的原理，为了便于理解做了很多简化。所以文中的某些术语的使用可能是不准确的，具体细节也未必是正确的，请大家多思考，有疑问欢迎留言讨论。<br>参考资料：<br><a href="https://segmentfault.com/a/1190000004322358#articleHeader2" target="_blank" rel="external">JavaScript：彻底理解同步、异步和事件循环</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>CLAY</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="ovenzeze.github.io/sync-asyn-and-sigle-thread/" title="单线程JS实现异步操作的原理">ovenzeze.github.io/sync-asyn-and-sigle-thread/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/运行机制/" rel="tag"># 运行机制</a>
+          
+            <a href="/tags/单线程/" rel="tag"># 单线程</a>
+          
+            <a href="/tags/异步/" rel="tag"># 异步</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/git-team-wrok/" rel="next" title="使用Git进行团队协作基础教程">
+                <i class="fa fa-chevron-left"></i> 使用Git进行团队协作基础教程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/prototype-and-__proto__/" rel="prev" title="显式原型和隐式原型的关系">
+                显式原型和隐式原型的关系 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpeg"
+                alt="CLAY" />
+            
+              <p class="site-author-name" itemprop="name">CLAY</p>
+              <p class="site-description motion-element" itemprop="description">技术，音乐和生活。<br>Free  Open  Share</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">15</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/ovenzeze" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:ovenzeze@qq.com" target="_blank" title="Mail"><i class="fa fa-fw fa-envelope"></i>Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1：JS运行时的线程"><span class="nav-number">1.</span> <span class="nav-text">1：JS运行时的线程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2：同步和异步的区别"><span class="nav-number">2.</span> <span class="nav-text">2：同步和异步的区别</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3：异步操作的过程"><span class="nav-number">3.</span> <span class="nav-text">3：异步操作的过程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4：消息队列和事件循环"><span class="nav-number">4.</span> <span class="nav-text">4：消息队列和事件循环</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5：总结"><span class="nav-number">5.</span> <span class="nav-text">5：总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heartbeat"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CLAY</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.4.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.4.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.4.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.4.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.4.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  
+  
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'i0SA4LOQInR8ngFx36fhlm0m-gzGzoHsz',
+        appKey: 'rD8FtGSl0WaXjfp6kItztJQo',
+        placeholder: '你有什么想对我说的？',
+        avatar:'mm',
+        meta:guest,
+        pageSize:'5' || 10,
+        visitor: true
+    });
+  </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.4.1" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.4.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.4.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.4.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.4.1" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.4.1',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="最近，有几个项目需要用到Git进行协作开发，虽然Git天生就对团队协作非常友好，但是基于命令行的GUI使用起来还是有一些门槛，所以在这里写一篇博客简单总结一下。其实如果只是进行基本的小型团队协作，Git的使用门槛非常低，只需要掌握几个基本的操作就可以。这篇博文就完全够你用了。">
+<meta name="keywords" content="协作开发,工具">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Git进行团队协作基础教程">
+<meta property="og:url" content="ovenzeze.github.io/git-team-wrok/index.html">
+<meta property="og:site_name" content="CLAY的个人博客">
+<meta property="og:description" content="最近，有几个项目需要用到Git进行协作开发，虽然Git天生就对团队协作非常友好，但是基于命令行的GUI使用起来还是有一些门槛，所以在这里写一篇博客简单总结一下。其实如果只是进行基本的小型团队协作，Git的使用门槛非常低，只需要掌握几个基本的操作就可以。这篇博文就完全够你用了。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="/img/mayun-key.jpg">
+<meta property="og:image" content="/img/mayun-zuzhi.jpg">
+<meta property="og:image" content="/img/mayun-invate.jpg">
+<meta property="og:image" content="/img/mayun-project.jpg">
+<meta property="og:image" content="/img/mayun-branch.jpg">
+<meta property="og:updated_time" content="2018-09-27T10:13:34.146Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用Git进行团队协作基础教程">
+<meta name="twitter:description" content="最近，有几个项目需要用到Git进行协作开发，虽然Git天生就对团队协作非常友好，但是基于命令行的GUI使用起来还是有一些门槛，所以在这里写一篇博客简单总结一下。其实如果只是进行基本的小型团队协作，Git的使用门槛非常低，只需要掌握几个基本的操作就可以。这篇博文就完全够你用了。">
+<meta name="twitter:image" content="/img/mayun-key.jpg">
+
+
+
+
+
+
+  <link rel="canonical" href="ovenzeze.github.io/git-team-wrok/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>使用Git进行团队协作基础教程 | CLAY的个人博客</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">CLAY的个人博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-时间线">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />时间线</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-关于我">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="ovenzeze.github.io/git-team-wrok/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CLAY">
+      <meta itemprop="description" content="技术，音乐和生活。<br>Free  Open  Share">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="CLAY的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">使用Git进行团队协作基础教程
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2016-10-09 22:10:48" itemprop="dateCreated datePublished" datetime="2016-10-09T22:10:48+08:00">2016-10-09</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-09-27 18:13:34" itemprop="dateModified" datetime="2018-09-27T18:13:34+08:00">2018-09-27</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/其他教程/" itemprop="url" rel="index"><span itemprop="name">其他教程</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/git-team-wrok/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/git-team-wrok/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/git-team-wrok/" class="leancloud_visitors" data-flag-title="使用Git进行团队协作基础教程">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数：</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近，有几个项目需要用到Git进行协作开发，虽然Git天生就对团队协作非常友好，但是基于命令行的GUI使用起来还是有一些门槛，所以在这里写一篇博客简单总结一下。<br>其实如果只是进行基本的小型团队协作，<code>Git</code>的使用门槛非常低，只需要掌握几个基本的操作就可以。<br>这篇博文就完全够你用了。<br><a id="more"></a></p>
+<h3 id="1-适用人群"><a href="#1-适用人群" class="headerlink" title="1:适用人群"></a>1:适用人群</h3><ul>
+<li>规模不超过20人的小团队适用GIt进行协作开发<blockquote>
+<p>团队规模过大时，会产生很多难以预知和管理的问题，需要更精细化的分工和更全面的守则</p>
+</blockquote>
+</li>
+</ul>
+<hr>
+<h3 id="2-知识准备"><a href="#2-知识准备" class="headerlink" title="2:知识准备"></a>2:知识准备</h3><ul>
+<li>git的基本使用</li>
+<li>了解本地仓库、远程仓库的区别</li>
+<li>基本的命令行操作</li>
+</ul>
+<hr>
+<h3 id="3-开始使用"><a href="#3-开始使用" class="headerlink" title="3:开始使用"></a>3:开始使用</h3><p>由于这次我们使用的是码云来进行团队协作，所以以下所有的内容都基于码云。</p>
+<blockquote>
+<p>码云是和Github相同类型的远程托管仓库，基本操作和Github可以通用。</p>
+</blockquote>
+<h4 id="3-1-注册码云或者Github账号"><a href="#3-1-注册码云或者Github账号" class="headerlink" title="3.1:注册码云或者Github账号"></a>3.1:注册码云或者Github账号</h4><p>打开码云网站，<a href="http://git.oschina.net" target="_blank" rel="external">http://git.oschina.net/</a>,注册一个新用户，记下你的用户名。<code>Github</code>在这里注册，<a href="http://www.github.com" target="_blank" rel="external">www.github.com</a>，同样的步骤。</p>
+<h4 id="3-2-本地安装并连接到远程仓库"><a href="#3-2-本地安装并连接到远程仓库" class="headerlink" title="3.2:本地安装并连接到远程仓库"></a>3.2:本地安装并连接到远程仓库</h4><p>在本地安装Git，安装步骤我不在赘述，在我的上一篇博文已经写的很详细了。<br>这里我说一下，怎么使用SSH连接到远程仓库，这样你每次推送更新的使用就不用输入账号密码了。</p>
+<h5 id="3-2-1-检查本地ssh文件夹"><a href="#3-2-1-检查本地ssh文件夹" class="headerlink" title="3.2.1:检查本地ssh文件夹"></a>3.2.1:检查本地ssh文件夹</h5><blockquote>
+<p>如果你没有安装或者使用过Git类工具，本地应该是没有这个文件的</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ls -al ~/.ssh  //列出电脑上的SSH文件夹，如果存在的话</div></pre></td></tr></table></figure>
+<p>发现很多同学不懂这句话什么意思，我简单说一下。<code>ls</code>是<code>list</code>的缩写，表示列出所有文件，<code>-al</code>是<code>ls</code>命令的参数表示所有目录并单列列出文件，<code>~</code>代表你的<code>Home</code>目录，在<code>windows</code>上也就是以你用户名命名的那个目录，<code>ssh</code>文件夹是个隐藏文件夹，所以前面加<code>.</code>。这些基本的<code>linux</code>命令大家可以好好看一下。<br>如果没有列出<code>ssh</code>文件那么就继续下一步，如果存在<code>ssh</code>文件你可以使用旧的文件或者删除这个目录，继续第二步生成新的<code>ssh</code>文件。</p>
+<h5 id="3-2-2-生成ssh密钥"><a href="#3-2-2-生成ssh密钥" class="headerlink" title="3.2.2:生成ssh密钥"></a>3.2.2:生成ssh密钥</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ ssh-keygen -t rsa -b 4096 -C &quot;username@example.com&quot;</div><div class="line">//生成基于此用户名的SSH Keys,这里的邮箱填写前面注册时的邮箱即可，</div></pre></td></tr></table></figure>
+<p>当然如果你害怕泄露隐私，也可以填写其他邮箱，不影响使用。之后，回车确认即可。</p>
+<h5 id="3-2-3-添加ssh-key到码云账户"><a href="#3-2-3-添加ssh-key到码云账户" class="headerlink" title="3.2.3:添加ssh key到码云账户"></a>3.2.3:添加ssh key到码云账户</h5><p>这时候你在C盘的用户名文件夹下应该能看到隐藏文件夹<code>.ssh</code>，打开此文件夹下的<code>id_rsa.pub</code>[可使用Nodepad++或sublime打开]文件，复制全部内容。<br>然后，在码云右上方点击小人图标，进入个人资料页，选择下方的”<code>SSH 公钥</code>”。接着粘贴<code>key</code>，输入<code>Keys</code>的名字（可以随便输入，是为了让你有多个<code>Keys</code>时能够分辨），点击”确定”按钮。<br><img src="/img/mayun-key.jpg" alt="码云"></p>
+<h5 id="3-2-4-检查是否能够连接到码云"><a href="#3-2-4-检查是否能够连接到码云" class="headerlink" title="3.2.4:检查是否能够连接到码云"></a>3.2.4:检查是否能够连接到码云</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ssh -T git@git.oschina.net</div></pre></td></tr></table></figure>
+<p>如果出现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ Welcome to Git@OSC, yourname!</div></pre></td></tr></table></figure></p>
+<p>说明连接成功。</p>
+<h5 id="3-2-5-clone你的项目到本地"><a href="#3-2-5-clone你的项目到本地" class="headerlink" title="3.2.5:clone你的项目到本地"></a>3.2.5:clone你的项目到本地</h5><blockquote>
+<p>如果之前已经在本地开发项目了，也可以初始化一个仓库，并push到远端，步骤类似，这里以全新clone为例。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git clone git@git.oschina.net:username/projectname.git</div></pre></td></tr></table></figure>
+<p>这样就<code>clone</code>了一个<code>username</code>下的<code>projectname</code>的项目，等待完成即可，默认<code>clone</code>下来的项目，仓库名是<code>origin</code>。</p>
+<h4 id="3-3-加入组织并建立分支"><a href="#3-3-加入组织并建立分支" class="headerlink" title="3.3:加入组织并建立分支"></a>3.3:加入组织并建立分支</h4><blockquote>
+<p>这部分的操作是由项目的负责人在码云网页端完成的</p>
+</blockquote>
+<h5 id="3-3-1-创建组织并添加成员"><a href="#3-3-1-创建组织并添加成员" class="headerlink" title="3.3.1:创建组织并添加成员"></a>3.3.1:创建组织并添加成员</h5><p>在用户首页左下角有一个组织选项，点击添加组织。界面如下：<br><img src="/img/mayun-zuzhi.jpg" alt="组织"></p>
+<blockquote>
+<p>组织是比项目更高一级的单位，项目时几个人合作开发的协作平台，而组织是几个项目的集合，用于管理多个项目。</p>
+</blockquote>
+<p>创建之后就可以邀请新成员了，界面如下：<br><img src="/img/mayun-invate.jpg" alt="邀请"></p>
+<h5 id="3-3-2-创建项目组并添加分支"><a href="#3-3-2-创建项目组并添加分支" class="headerlink" title="3.3.2:创建项目组并添加分支"></a>3.3.2:创建项目组并添加分支</h5><p>进入之后，点击添加项目，就可以添加项目了，界面如下：<br><img src="/img/mayun-project.jpg" alt="邀请">个成员都建立一个分支，界面如下：<br><img src="/img/mayun-branch.jpg" alt="分支"><br>起点默认即可，分支名称填写成员昵称。</p>
+<blockquote>
+<p>当然，你也可以根据项目的开发情况来建立分支，比如发行版分支、开发板分支、存在BUG的分支、新版本分支等.</p>
+</blockquote>
+<hr>
+<h4 id="3-4-开始团队协作"><a href="#3-4-开始团队协作" class="headerlink" title="3.4:开始团队协作"></a>3.4:开始团队协作</h4><h5 id="3-4-1-同步远端内容到本地"><a href="#3-4-1-同步远端内容到本地" class="headerlink" title="3.4.1:同步远端内容到本地"></a>3.4.1:同步远端内容到本地</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git pull origin master</div></pre></td></tr></table></figure>
+<p>这里的<code>master</code>是你开发的项目主分支，开发前先将远端内容同步下来，因为别人可能合并了新的内容到主分支，为了保证开发进度的一致，需要先<code>pull</code>下主分支内容。</p>
+<h5 id="3-4-2-将改动推送到远端分支"><a href="#3-4-2-将改动推送到远端分支" class="headerlink" title="3.4.2:将改动推送到远端分支"></a>3.4.2:将改动推送到远端分支</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git checkout 你的开发分支名 //切换到你的开发分支</div></pre></td></tr></table></figure>
+<p>现在你可以进行开发，开发完成并确认无误后你可以将改动推送到远程开发分支。</p>
+<blockquote>
+<p>这一步时，很多人会碰到没有分支的情况，这里说明一下。如果你<code>clone</code>的时候，远端项目的分支还没有建立，你<code>clone</code>下来的项目是没有分支结构的，需要你自己新建分支并推送到远端仓库或者·    在远端仓库分支建立后再次<code>clone</code>，就会将仓库的分支结构也<code>clone</code>下来。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ git add * //t添加所有改动文件到暂存区</div><div class="line">$ git commit -m &quot;开发说明&quot;  //添加提交说明</div><div class="line">$ git push origin 你的开发分支名</div></pre></td></tr></table></figure>
+<p>这里只是将改动推送到属于你自己的开发分支，所以这里的分支名是为你建立的开发分支的名字。</p>
+<h5 id="3-4-3-将远端分支合并到主分支"><a href="#3-4-3-将远端分支合并到主分支" class="headerlink" title="3.4.3:将远端分支合并到主分支"></a>3.4.3:将远端分支合并到主分支</h5><p>现在你已经在本地进行了一些开发了，并且确认这些开发可以使用，想要推送到主分支，让大家在这个基础上继续开发，所以你需要合并到主分支。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ git branch -a  //查看本地和远程所有分支，带*号是当前所在分支。</div><div class="line">$ git checkout master //切换到主分支</div><div class="line">$ git merge 你的开发分支名 //将你的开发分支合并到主分支</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p>合并到主分支后，所有的成员拉取的内容都会改变，所以合并到主分支一定要谨慎。</p>
+</blockquote>
+<hr>
+<h3 id="4-一些建议"><a href="#4-一些建议" class="headerlink" title="4:一些建议"></a>4:一些建议</h3><ul>
+<li>同样的部分最好由一个人负责，不要多个人改动同一个文件，否则很容易出现冲突<br>出现冲突怎么处理呢？举个例子：<br>在我合并到主分支的时候，出现了不能自动修正的冲突。<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Automatic merge failed; fix conflicts and then commit the result. //一般会这么提示</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>找到冲突的文件，修改冲突后的部分，如果不知道冲突的部分在哪里，可以拉取主分支内容，在本地比对，修改后再提交。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git add 冲突的文件</div></pre></td></tr></table></figure></p>
+<p>再次提交远程开发分支，并合并到主分支。</p>
+<ul>
+<li>远程的开发分支在这个项目中只是作为一个开发内容的备份，就算这个开发分支只存在于本地也可以正常开发和提交，所以在某些项目中这不是必须的。</li>
+</ul>
+<hr>
+<h3 id="5：结语"><a href="#5：结语" class="headerlink" title="5：结语"></a>5：结语</h3><p>这些就是最基本的使用Git进行团队协作的基本操作，还有更复杂的冲突处理、版本回退、删除错误提交大家可以下去参考Git的官方教程。我也是第一次使用Git进行团队协作，所以有些地方了解的也不够清楚，有疑问欢迎下方留言一起讨论。<br>不知不觉已经写了一晚上了，囧。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>CLAY</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="ovenzeze.github.io/git-team-wrok/" title="使用Git进行团队协作基础教程">ovenzeze.github.io/git-team-wrok/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/协作开发/" rel="tag"># 协作开发</a>
+          
+            <a href="/tags/工具/" rel="tag"># 工具</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/regExp-quick-use/" rel="next" title="正则表达式快速入门">
+                <i class="fa fa-chevron-left"></i> 正则表达式快速入门
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/sync-asyn-and-sigle-thread/" rel="prev" title="单线程JS实现异步操作的原理">
+                单线程JS实现异步操作的原理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpeg"
+                alt="CLAY" />
+            
+              <p class="site-author-name" itemprop="name">CLAY</p>
+              <p class="site-description motion-element" itemprop="description">技术，音乐和生活。<br>Free  Open  Share</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">15</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/ovenzeze" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:ovenzeze@qq.com" target="_blank" title="Mail"><i class="fa fa-fw fa-envelope"></i>Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-适用人群"><span class="nav-number">1.</span> <span class="nav-text">1:适用人群</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-知识准备"><span class="nav-number">2.</span> <span class="nav-text">2:知识准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-开始使用"><span class="nav-number">3.</span> <span class="nav-text">3:开始使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1-注册码云或者Github账号"><span class="nav-number">3.1.</span> <span class="nav-text">3.1:注册码云或者Github账号</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-本地安装并连接到远程仓库"><span class="nav-number">3.2.</span> <span class="nav-text">3.2:本地安装并连接到远程仓库</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-1-检查本地ssh文件夹"><span class="nav-number">3.2.1.</span> <span class="nav-text">3.2.1:检查本地ssh文件夹</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-2-生成ssh密钥"><span class="nav-number">3.2.2.</span> <span class="nav-text">3.2.2:生成ssh密钥</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-3-添加ssh-key到码云账户"><span class="nav-number">3.2.3.</span> <span class="nav-text">3.2.3:添加ssh key到码云账户</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-4-检查是否能够连接到码云"><span class="nav-number">3.2.4.</span> <span class="nav-text">3.2.4:检查是否能够连接到码云</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-5-clone你的项目到本地"><span class="nav-number">3.2.5.</span> <span class="nav-text">3.2.5:clone你的项目到本地</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-加入组织并建立分支"><span class="nav-number">3.3.</span> <span class="nav-text">3.3:加入组织并建立分支</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-3-1-创建组织并添加成员"><span class="nav-number">3.3.1.</span> <span class="nav-text">3.3.1:创建组织并添加成员</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-3-2-创建项目组并添加分支"><span class="nav-number">3.3.2.</span> <span class="nav-text">3.3.2:创建项目组并添加分支</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-开始团队协作"><span class="nav-number">3.4.</span> <span class="nav-text">3.4:开始团队协作</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-4-1-同步远端内容到本地"><span class="nav-number">3.4.1.</span> <span class="nav-text">3.4.1:同步远端内容到本地</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-4-2-将改动推送到远端分支"><span class="nav-number">3.4.2.</span> <span class="nav-text">3.4.2:将改动推送到远端分支</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-4-3-将远端分支合并到主分支"><span class="nav-number">3.4.3.</span> <span class="nav-text">3.4.3:将远端分支合并到主分支</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-一些建议"><span class="nav-number">4.</span> <span class="nav-text">4:一些建议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5：结语"><span class="nav-number">5.</span> <span class="nav-text">5：结语</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heartbeat"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CLAY</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.4.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.4.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.4.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.4.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.4.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  
+  
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'i0SA4LOQInR8ngFx36fhlm0m-gzGzoHsz',
+        appKey: 'rD8FtGSl0WaXjfp6kItztJQo',
+        placeholder: '你有什么想对我说的？',
+        avatar:'mm',
+        meta:guest,
+        pageSize:'5' || 10,
+        visitor: true
+    });
+  </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

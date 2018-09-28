@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.4.1" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.4.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.4.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.4.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.4.1" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.4.1',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="JavaScript是面向对象的语言，面向对象语言大多支持的接口继承和实现继承。接口继承继承方法签名，不继承实际操作内容，实现继承继承实际的方法。JavaScript中函数没有签名，所以无法实现接口继承，而且基于原型和构造函数实现的实现继承也和传统的面向对象语言有不少区别。所以产生了多种多样实现继承的方式。JavaScript实现继承主要有两种方式，构造函数继承也叫类式继承和非构造函数继承也叫对象">
+<meta name="keywords" content="继承">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JS实现继承的几种方式及其优缺点分析">
+<meta property="og:url" content="ovenzeze.github.io/some-methods-of-inherit-prototype/index.html">
+<meta property="og:site_name" content="CLAY的个人博客">
+<meta property="og:description" content="JavaScript是面向对象的语言，面向对象语言大多支持的接口继承和实现继承。接口继承继承方法签名，不继承实际操作内容，实现继承继承实际的方法。JavaScript中函数没有签名，所以无法实现接口继承，而且基于原型和构造函数实现的实现继承也和传统的面向对象语言有不少区别。所以产生了多种多样实现继承的方式。JavaScript实现继承主要有两种方式，构造函数继承也叫类式继承和非构造函数继承也叫对象">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-09-27T10:13:34.147Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JS实现继承的几种方式及其优缺点分析">
+<meta name="twitter:description" content="JavaScript是面向对象的语言，面向对象语言大多支持的接口继承和实现继承。接口继承继承方法签名，不继承实际操作内容，实现继承继承实际的方法。JavaScript中函数没有签名，所以无法实现接口继承，而且基于原型和构造函数实现的实现继承也和传统的面向对象语言有不少区别。所以产生了多种多样实现继承的方式。JavaScript实现继承主要有两种方式，构造函数继承也叫类式继承和非构造函数继承也叫对象">
+
+
+
+
+
+
+  <link rel="canonical" href="ovenzeze.github.io/some-methods-of-inherit-prototype/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>JS实现继承的几种方式及其优缺点分析 | CLAY的个人博客</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">CLAY的个人博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-时间线">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />时间线</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-关于我">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="ovenzeze.github.io/some-methods-of-inherit-prototype/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CLAY">
+      <meta itemprop="description" content="技术，音乐和生活。<br>Free  Open  Share">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="CLAY的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JS实现继承的几种方式及其优缺点分析
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2016-10-26 21:10:32" itemprop="dateCreated datePublished" datetime="2016-10-26T21:10:32+08:00">2016-10-26</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-09-27 18:13:34" itemprop="dateModified" datetime="2018-09-27T18:13:34+08:00">2018-09-27</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/基础知识/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/some-methods-of-inherit-prototype/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/some-methods-of-inherit-prototype/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/some-methods-of-inherit-prototype/" class="leancloud_visitors" data-flag-title="JS实现继承的几种方式及其优缺点分析">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数：</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>JavaScript</code>是面向对象的语言，面向对象语言大多支持的接口继承和实现继承。接口继承继承方法签名，不继承实际操作内容，实现继承继承实际的方法。<code>JavaScript</code>中函数没有签名，所以无法实现接口继承，而且基于原型和构造函数实现的实现继承也和传统的面向对象语言有不少区别。所以产生了多种多样实现继承的方式。<br><code>JavaScript</code>实现继承主要有两种方式，构造函数继承也叫类式继承和非构造函数继承也叫对象继承。但是由于<code>JavaScript</code>语言本身的灵活性，同时衍生出很多组合使用多种凡事的继承方法。<br>下面就是<code>JavaScript</code>实现继承的几种常用方式。<br><a id="more"></a></p>
+<h2 id="1：借用构造函数实现继承"><a href="#1：借用构造函数实现继承" class="headerlink" title="1：借用构造函数实现继承"></a>1：借用构造函数实现继承</h2><p>这种方式的原理很简单，就是在子类型的内部调用父类型（超类型）的构造函数。主要通过<code>call apply bind</code>来实现。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">function SuperType()&#123;</div><div class="line">    this.colors=[&quot;red&quot;,&quot;blue&quot;,&quot;green&quot;];</div><div class="line">&#125;</div><div class="line"> </div><div class="line">function SubType()&#123;</div><div class="line">//通过call实现继承SuperType</div><div class="line">    SuperType.call(this);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>优点：</p>
+<ul>
+<li>通过使用<code>call</code>可以在调用的时候向父类型传递参数。<br>缺点：</li>
+<li>仅仅借用构造函数，方法都在构造函数中定义，就无法实现函数复用；</li>
+<li>通过借用构造函数，在父类型原型中定义的方法也无法通过原型链暴露给子类型；</li>
+</ul>
+<h2 id="2：原型链实现继承"><a href="#2：原型链实现继承" class="headerlink" title="2：原型链实现继承"></a>2：原型链实现继承</h2><p>大家肯定都知道通过原型链可以很方便的让一个子类型继承父类型的属性和方法。每个构造函数都有一个原型对象，而这个原型对象又有一个指回构造函数的指针，而每个构造函数构造出来的实例，都有一个内部指针指向构造函数的原型对象。如果我们让一个构造函数的原型对象等于另一个构造函数的实例，那么是不是这个构造函数的实例就能够指向另一个构造函数的原型对象，以此类推，原型链不就形成了，同理，这不就叫继承吗？<br>代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">function Parent()&#123; // Parent构造函数</div><div class="line">    this.name = &apos;mike&apos;;</div><div class="line">&#125;</div><div class="line">function Child()&#123;</div><div class="line">    this.age = 12;</div><div class="line">&#125;</div><div class="line">Child.prototype = new Parent();//Child继承Parent，通过原型，形成链条 </div><div class="line">var test = new Child();</div><div class="line">alert(test.age);</div><div class="line">alert(test.name);//得到被继承的属性</div><div class="line">//继续原型链继承</div><div class="line">function Brother()&#123;   // brother构造函数</div><div class="line">    this.weight = 60;</div><div class="line">&#125;</div><div class="line">Brother.prototype = new Child();// 继续原型链继承</div><div class="line">var brother = new Brother();</div><div class="line">alert(brother.name);// 继承了Parent和Child,弹出mike</div><div class="line">alert(brother.age);// 弹出12</div></pre></td></tr></table></figure></p>
+<p>在这里，<code>brother</code>指向他的构造函数的原型，<code>Brother.prototype</code>，而<code>Brother</code>的原型是由<code>Child</code>的实例生成的，所以<code>Brother</code>的原型拥有和<code>Child</code>的实例一样的指向，而<code>Child</code>的实例指向<code>Child</code>构造函数的原型，这里，再次<code>Child</code>构造函数的原型式<code>Parent</code>实例生成的，拥有和<code>Parent</code>实例一样的指向。到这里，我们定义的原型链就完成了，当然还有<code>Function、Object</code>之间的部分，这里我们就不讨论了。<br>优点：</p>
+<ul>
+<li>非常简便的实现了多重继承的关系；</li>
+<li>能够确定原型和实例之间的关系；<br>缺点：</li>
+<li>创建子类型实例时，无法向父类型传递参数，尤其是多重继承时，弊端非常明显；</li>
+<li>所有的实例会共享通过原型链继承的属性，在一个实例中改变了，会在另一个实例中反映出来；</li>
+<li>不能使用字面量添加新方法，会使继承关系中断（会重写<code>constructor</code>属性）；<br>以上是两种较为单一的继承实现，但是实际使用中都是使用了多种方式的组合继承，主要由以下几种。<h2 id="3：组合继承"><a href="#3：组合继承" class="headerlink" title="3：组合继承"></a>3：组合继承</h2>组合继承就是将前面两种方法组合到一起，原理是通过原型链实现对原型属性和方法的继承，而通过构造函数实现对实例属性的继承。这样，既保证原型上定义的属性和方法可以共享，又保证每个实例都有自己的属性。<br>举个例子：<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">superType</span> (<span class="params"> </span>)</span>&#123;</div><div class="line"><span class="keyword">this</span>.name = name;</div><div class="line"><span class="keyword">this</span>.colors = [<span class="string">"red"</span>,<span class="string">"blue"</span>,<span class="string">"green"</span>];</div><div class="line">&#125;</div><div class="line">superType.prototype.sayName = <span class="function"><span class="keyword">function</span> (<span class="params"> </span>)</span>&#123;</div><div class="line"><span class="built_in">console</span>.log(<span class="keyword">this</span>.name);</div><div class="line">&#125;</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">subType</span> (<span class="params">name,age</span>)</span>&#123;</div><div class="line"><span class="comment">//通过call继承superType</span></div><div class="line">superType.call(<span class="keyword">this</span>,name);</div><div class="line"><span class="keyword">this</span>.age = age;</div><div class="line">&#125;</div><div class="line">subType.prototype = <span class="keyword">new</span> SuperType( );</div><div class="line"><span class="comment">//将constructor重新指回subType</span></div><div class="line">subType.protype.constructor = subType;</div><div class="line">subType.prototype.sayAge = <span class="function"><span class="keyword">function</span>(<span class="params"> </span>)</span>&#123;</div><div class="line"><span class="built_in">console</span>.log(<span class="keyword">this</span>.age);</div><div class="line">&#125;</div><div class="line"><span class="keyword">var</span> instance1 = <span class="keyword">new</span> subType(<span class="string">"ovenzhang"</span>,<span class="string">"21"</span>);</div><div class="line"><span class="keyword">var</span> instance2 = <span class="keyword">new</span> subType(<span class="string">"ovenzeze"</span>,<span class="string">"22"</span>);</div><div class="line">instance1.colors.push = <span class="string">"black"</span>;</div><div class="line"><span class="built_in">console</span>.log(instance1.colors);</div><div class="line"><span class="comment">// "red,blue,green,black"</span></div><div class="line"><span class="built_in">console</span>.log(instance1.sayAge);</div><div class="line"><span class="comment">//21</span></div><div class="line"><span class="built_in">console</span>.log(instance1.sayName);</div><div class="line"><span class="comment">//ovenzhang</span></div><div class="line"><span class="built_in">console</span>.log(instance2.colors);</div><div class="line"><span class="comment">// "red,blue,green,black"</span></div><div class="line"><span class="built_in">console</span>.log(instance2.sayAge);</div><div class="line"><span class="comment">//22</span></div><div class="line"><span class="built_in">console</span>.log(instance2.sayName);</div><div class="line"><span class="comment">//ovenzeze</span></div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>在这个例子中，<code>superType</code>定义的属性和<code>superType</code>原型上定义的方法是所有实例共享的，<code>subType</code>中定义的属性是每一个实例都会有的拷贝，<code>subType</code>原型中定义的方法也是实例共享的，这样<code>subType</code>的两个实例，既可以拥有自己的属性，又可以拥有共享的属性和方法。<br>组合继承避免了原型继承和借用构造函数继承的缺点，融合了他们的优点，是目前最常用的继承方式。</p>
+<h2 id="4：原型式继承"><a href="#4：原型式继承" class="headerlink" title="4：原型式继承"></a>4：原型式继承</h2><p>通过借助原型基于已有的对象创建新对象，同时在创建的过程中加以修改，达到了继承原有属性和方法并可以添加新属性和方法的目的。<br>举个例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">  function obj(o)&#123;</div><div class="line">      function F()&#123;&#125;</div><div class="line">      F.prototype = o;</div><div class="line">      return new F();</div><div class="line">  &#125;</div><div class="line"> var box = &#123;</div><div class="line">     name : &apos;trigkit4&apos;,</div><div class="line">     arr : [&apos;brother&apos;,&apos;sister&apos;,&apos;baba&apos;]</div><div class="line"> &#125;;</div><div class="line"> var b1 = obj(box);</div><div class="line"> alert(b1.name);</div><div class="line"> //trigkit4</div><div class="line"> b1.name = &apos;mike&apos;;</div><div class="line"> alert(b1.name);</div><div class="line"> //mike</div><div class="line"> alert(b1.arr); </div><div class="line">//brother,sister,baba</div><div class="line"> b1.arr.push(&apos;parents&apos;);</div><div class="line"> alert(b1.arr);</div><div class="line">//brother,sister,baba,parents  </div><div class="line"> var b2 = obj(box);</div><div class="line"> alert(b2.name);</div><div class="line">//trigkit4</div><div class="line"> alert(b2.arr);</div><div class="line">//brother,sister,baba,parents</div></pre></td></tr></table></figure></p>
+<p>可以看到，原型式继承最关键的就是已有的对象，通过使用<code>object</code>函数，把已有的对象重新引用了一次，相当于进行了一次浅复制，在新的通过已有对象生成的新对象上，具有原来的属性和方法，同时又可以增加新的属性和方法确不会影响到原来的对象。<br>缺点：<br>通过将原有对象的复制给新对象的原型实现了继承，但是如果原有对象包含有引用类型值，则会被所有实例共享；<br>通过这种方式使用原有对象的方法也无法传递参数。</p>
+<h2 id="5：寄生式继承"><a href="#5：寄生式继承" class="headerlink" title="5：寄生式继承"></a>5：寄生式继承</h2><p>前面的原型式继承具有单一方式的几个缺点，所以出现了和寄生构造函数和工厂模式思想类似的寄生式继承。原理是，创建一个仅用于封装继承过程的函数，该函数在内部一某种方式来增强对象，再返回对象。<br>举个栗子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">function rreateAnother( )&#123;</div><div class="line">//和原型式继承中用到的object功能一样</div><div class="line">var clone = object(original);</div><div class="line">//增强对象</div><div class="line">clone.sayHi = function( )&#123;</div><div class="line">alert(&quot;hi!&quot;);</div><div class="line">&#125;;</div><div class="line">//返回对象</div><div class="line">return clone;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这种方式实现的继承，不仅能够使用共享的属性和方法，还可以有自己的私有属性和方法。<br>缺点：<br>在多层继承时无法实现链式继承，后续添加的函数和方法无法复用；</p>
+<h2 id="6：寄生组合式继承"><a href="#6：寄生组合式继承" class="headerlink" title="6：寄生组合式继承"></a>6：寄生组合式继承</h2><p>前面的组合式时继承其实已经是能够满足绝大多数场景的方案，但是在要求性能极度优化的环境下，组合式继承通过两次调用父类型构造函数就显得效率比较低下了。<br>而寄生组合式继承，就是借用构造函数来继承属性，通过原型链的混成方式来继承方法。这种方式就无需为了使用父类型的属性，而使用call调用父类型的构造函数。<br>基本实现代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line">//obj函数，实现寄生式继承的基础</div><div class="line">    function obj(o)&#123;</div><div class="line">        function F()&#123;&#125;</div><div class="line">        F.prototype = o;</div><div class="line">        return new F();</div><div class="line">    &#125;</div><div class="line">   //create函数 实现组合寄生继承的核心</div><div class="line">    function create(subType,superType)&#123; </div><div class="line">       //创建对象，保存parent的原型到f上</div><div class="line">        var f = obj(superType.prototype); </div><div class="line">       //增强对象，将f指回test函数</div><div class="line">        f.constructor = subType;   </div><div class="line">      //指定对象，将增强过的f赋给parent原型</div><div class="line">        subType.prototype = f; </div><div class="line">    &#125;</div><div class="line"> //例子</div><div class="line">    function Parent(name)&#123;</div><div class="line">        this.name = name;</div><div class="line">        this.arr = [&apos;brother&apos;,&apos;sister&apos;,&apos;parents&apos;];</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    Parent.prototype.run = function () &#123;</div><div class="line">        return this.name;</div><div class="line">    &#125;;</div><div class="line"> </div><div class="line">    function Child(name,age)&#123;</div><div class="line">        Parent.call(this,name);</div><div class="line">        this.age =age;</div><div class="line">    &#125;</div><div class="line">    //通过这里实现继承  </div><div class="line">    create(Child,Parent);</div><div class="line">    var test = new Child(&apos;ovenzhang&apos;,21);</div><div class="line">    test.arr.push(&apos;nephew&apos;);</div><div class="line">    alert(test.arr);  </div><div class="line">    // &quot;brother,sister,parents,nephew&quot;</div><div class="line">    alert(test.run); </div><div class="line">    //ovenzhang</div></pre></td></tr></table></figure></p>
+<p>这种方式通过<code>create</code>函数将父类的原型赋给子类的原型并不改变子类原型的<code>constructor</code>指向，相当于实现了继承父类原型上的方法和属性，但是不必再次调用父类的构造函数，提高了组合继承的效率。是目前认为引用类型实现继承的理想方式。</p>
+<h2 id="7：总结"><a href="#7：总结" class="headerlink" title="7：总结"></a>7：总结</h2><p>一般情况下，使用组合继承就可以了，这也是目前使用最广泛，认同度最高的实现继承的方式。而当对性能要求非常高时，也可以使用组合寄生式继承，是结合了组合继承和寄生式继承的优点的方式，但是方法相对复杂一些。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>CLAY</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="ovenzeze.github.io/some-methods-of-inherit-prototype/" title="JS实现继承的几种方式及其优缺点分析">ovenzeze.github.io/some-methods-of-inherit-prototype/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/继承/" rel="tag"># 继承</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/some-method-of-create-object/" rel="next" title="JS中创建对象的几种方式">
+                <i class="fa fa-chevron-left"></i> JS中创建对象的几种方式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/use-of-call-apply-bind/" rel="prev" title="call,apply,bind用法和意义">
+                call,apply,bind用法和意义 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpeg"
+                alt="CLAY" />
+            
+              <p class="site-author-name" itemprop="name">CLAY</p>
+              <p class="site-description motion-element" itemprop="description">技术，音乐和生活。<br>Free  Open  Share</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">15</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/ovenzeze" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:ovenzeze@qq.com" target="_blank" title="Mail"><i class="fa fa-fw fa-envelope"></i>Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1：借用构造函数实现继承"><span class="nav-number">1.</span> <span class="nav-text">1：借用构造函数实现继承</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2：原型链实现继承"><span class="nav-number">2.</span> <span class="nav-text">2：原型链实现继承</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3：组合继承"><span class="nav-number">3.</span> <span class="nav-text">3：组合继承</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4：原型式继承"><span class="nav-number">4.</span> <span class="nav-text">4：原型式继承</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5：寄生式继承"><span class="nav-number">5.</span> <span class="nav-text">5：寄生式继承</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6：寄生组合式继承"><span class="nav-number">6.</span> <span class="nav-text">6：寄生组合式继承</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7：总结"><span class="nav-number">7.</span> <span class="nav-text">7：总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heartbeat"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CLAY</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.4.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.4.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.4.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.4.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.4.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  
+  
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'i0SA4LOQInR8ngFx36fhlm0m-gzGzoHsz',
+        appKey: 'rD8FtGSl0WaXjfp6kItztJQo',
+        placeholder: '你有什么想对我说的？',
+        avatar:'mm',
+        meta:guest,
+        pageSize:'5' || 10,
+        visitor: true
+    });
+  </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

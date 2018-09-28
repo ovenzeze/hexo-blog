@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.4.1" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.4.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.4.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.4.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.4.1" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.4.1',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="昨天电话面试阿里云，面试官问到了有哪些控制缓存的方法，当时只答出来了一个通过设置过期时间（Expires），今天有空，正好整理一下。 浏览器端缓存分类缓存主要分为强缓存和协商缓存。强缓存：浏览器在加载资源时，先根据这个资源的一些http header判断它是否命中强缓存，强缓存如果命中，浏览器直接从自己的缓存中读取资源，不会发请求到服务器。协商缓存：当强缓存没有命中的时候，浏览器一定会发送一个请求">
+<meta name="keywords" content="浏览器缓存">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浏览器的缓存管理">
+<meta property="og:url" content="ovenzeze.github.io/cache-control-in-browser/index.html">
+<meta property="og:site_name" content="CLAY的个人博客">
+<meta property="og:description" content="昨天电话面试阿里云，面试官问到了有哪些控制缓存的方法，当时只答出来了一个通过设置过期时间（Expires），今天有空，正好整理一下。 浏览器端缓存分类缓存主要分为强缓存和协商缓存。强缓存：浏览器在加载资源时，先根据这个资源的一些http header判断它是否命中强缓存，强缓存如果命中，浏览器直接从自己的缓存中读取资源，不会发请求到服务器。协商缓存：当强缓存没有命中的时候，浏览器一定会发送一个请求">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://123.206.204.163:2333/media/first-request.png">
+<meta property="og:image" content="http://123.206.204.163:2333/media/second-request.png">
+<meta property="og:updated_time" content="2018-09-27T10:13:34.145Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="浏览器的缓存管理">
+<meta name="twitter:description" content="昨天电话面试阿里云，面试官问到了有哪些控制缓存的方法，当时只答出来了一个通过设置过期时间（Expires），今天有空，正好整理一下。 浏览器端缓存分类缓存主要分为强缓存和协商缓存。强缓存：浏览器在加载资源时，先根据这个资源的一些http header判断它是否命中强缓存，强缓存如果命中，浏览器直接从自己的缓存中读取资源，不会发请求到服务器。协商缓存：当强缓存没有命中的时候，浏览器一定会发送一个请求">
+<meta name="twitter:image" content="http://123.206.204.163:2333/media/first-request.png">
+
+
+
+
+
+
+  <link rel="canonical" href="ovenzeze.github.io/cache-control-in-browser/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>浏览器的缓存管理 | CLAY的个人博客</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">CLAY的个人博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-时间线">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />时间线</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-关于我">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="ovenzeze.github.io/cache-control-in-browser/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CLAY">
+      <meta itemprop="description" content="技术，音乐和生活。<br>Free  Open  Share">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="CLAY的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">浏览器的缓存管理
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-03-02 20:24:36" itemprop="dateCreated datePublished" datetime="2017-03-02T20:24:36+08:00">2017-03-02</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-09-27 18:13:34" itemprop="dateModified" datetime="2018-09-27T18:13:34+08:00">2018-09-27</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/基础知识/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/cache-control-in-browser/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/cache-control-in-browser/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/cache-control-in-browser/" class="leancloud_visitors" data-flag-title="浏览器的缓存管理">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数：</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>昨天电话面试阿里云，面试官问到了有哪些控制缓存的方法，当时只答出来了一个通过设置过期时间（<code>Expires</code>），今天有空，正好整理一下。</p>
+<h1 id="浏览器端缓存分类"><a href="#浏览器端缓存分类" class="headerlink" title="浏览器端缓存分类"></a>浏览器端缓存分类</h1><p>缓存主要分为<code>强缓存</code>和<code>协商缓存</code>。<br><code>强缓存</code>：浏览器在加载资源时，先根据这个资源的一些<code>http header</code>判断它是否命中强缓存，强缓存如果命中，浏览器直接从自己的缓存中读取资源，不会发请求到服务器。<br><code>协商缓存</code>：当强缓存没有命中的时候，浏览器一定会发送一个请求到服务器，通过服务器端依据资源的另外一些<code>http header</code>验证这个资源是否命中协商缓存，如果协商缓存命中，服务器会将这个请求返回（<code>304</code>），但是不会返回这个资源的数据，而是告诉客户端可以直接从缓存中加载这个资源，于是浏览器就又会从自己的缓存中去加载这个资源；若未命中请求，则将资源返回客户端，并更新本地缓存数据（<code>200</code>）。<br>强缓存不发送网络请求，协商缓存要发送网络请求。<br><a id="more"></a></p>
+<p>浏览器缓存使用流程图：</p>
+<p>第一次请求：</p>
+<p><img src="http://123.206.204.163:2333/media/first-request.png" alt="第一次请求"><br>第二次请求：</p>
+<p><img src="http://123.206.204.163:2333/media/second-request.png" alt="第二次请求"></p>
+<h1 id="设置缓存的几种方式"><a href="#设置缓存的几种方式" class="headerlink" title="设置缓存的几种方式"></a>设置缓存的几种方式</h1><p>1:Meta标签控制缓存（非HTTP协议定义）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;META HTTP-EQUIV=&quot;cache-control&quot; CONTENT=&quot;no-cache&quot;&gt;</div></pre></td></tr></table></figure></p>
+<p>上述代码的作用是告诉浏览器当前页面不被缓存，每次访问都需要去服务器拉取。这种方法使用上很简单，但只有部分浏览器可以支持，而且所有缓存代理服务器都不支持，因为代理不解析HTML内容本身。<br>2 HTTP头信息控制缓存<br>HTTP头信息控制缓存是通过<code>Expires</code>（强缓存）、<code>Cache-control</code>（强缓存）、<code>Last-Modified/If-Modified-Since</code>（协商缓存）、<code>Etag/If-None-Match</code>（协商缓存）实现。</p>
+<h1 id="强缓存"><a href="#强缓存" class="headerlink" title="强缓存"></a>强缓存</h1><p>强缓存的设置方式主要是<code>Expires</code>和<code>Cache-control</code>。<br><code>Expires</code>是<code>HTTP1.0</code>提出的一个表示资源过期时间的<code>header</code>，它描述的是一个绝对时间，由服务器返回，用<code>GMT</code>格式的字符串表示，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">如：Expires:Thu, 31 Dec 2016 23:55:55 GMT</div></pre></td></tr></table></figure></p>
+<p>由于是绝对时间，那么存在跨时区、系统时间有误等各种情况可能出现误差。在<code>HTTP1.1</code>以后不再使用了。<br><code>Cache-control</code>描述的是一个相对时间，在进行缓存命中的时候，都是利用客户端时间进行判断，所以相比较<code>Expires</code>，<code>Cache-Control</code>的缓存管理更有效，安全一些。<br><code>Cache-Control</code>可以使用的值有<code>public</code>、<code>private</code>、<code>no-cache</code>、<code>no-store</code>、<code>no-transform</code>、<code>must-revalidate</code>、<code>proxy-revalidate</code>、<code>max-age</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">各个消息中的指令含义如下：</div><div class="line">Public指示响应可被任何缓存区缓存。</div><div class="line">Private指示对于单个用户的整个或部分响应消息，不能被共享缓存处理。这允许服务器仅仅描述当前用户的部分响应消息，此响应消息对于其他用户的请求无效。</div><div class="line">no-cache指示请求或响应消息不能缓存，该选项并不是说可以设置&apos;不缓存&apos;，而是需要和服务器确认</div><div class="line">no-store在请求消息中发送将使得请求和响应消息都不使用缓存，完全不存下來。</div><div class="line">max-age指示客户机可以接收生存期不大于指定时间（以秒为单位）的响应。</div><div class="line">上次缓存时间（客户端的）+max-age（64200s）&lt;客户端当前时间</div><div class="line">min-fresh指示客户机可以接收响应时间小于当前时间加上指定时间的响应。</div><div class="line">max-stale指示客户机可以接收超出超时期间的响应消息。如果指定max-stale消息的值，那么客户机可以接收超出超时期指定值之内的响应消息。</div></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：<br>1:这两个<code>header</code>可以只启用一个，也可以同时启用，当<code>response header</code>中，<code>Expires</code>和<code>Cache-Control</code>同时存在时，<code>Cache-Control</code>优先级高于<code>Expires</code>.</p>
+</blockquote>
+<h1 id="协商缓存"><a href="#协商缓存" class="headerlink" title="协商缓存"></a>协商缓存</h1><p>协商缓存主要由<code>Last-Modified/If-Modified-Since</code>和<code>Etag/If-None-Match</code>实现。</p>
+<blockquote>
+<p><code>Last-Modified/If-Modified-Since</code>：<code>Last-Modified/If-Modified-Since</code>要配合<code>Cache-Control</code>使用。</p>
+</blockquote>
+<p><code>Last-Modified</code>：标示这个响应资源的最后修改时间。服务器在响应请求时，告诉浏览器资源的最后修改时间。(放在<code>响应头</code>里面)<br><code>If-Modified-Since</code>：当资源过期时（强缓存失效），发现资源具有<code>Last-Modified</code>声明，则再次向服务器请求时带上头 <code>If-Modified-Since</code>，表示请求时间。服务器收到请求后发现有头<code>If-Modified-Since</code> 则与被请求资源的最后修改时间进行比对。若最后修改时间较新，说明资源又被改动过，则响应整片资源内容（写在响应消息包体内），<code>HTTP 200</code>；若最后修改时间较旧，说明资源无新修改，则响应<code>HTTP 304</code>(无需包体，节省浏览)，告知浏览器继续使用所保存的<code>cache</code>。（资源过期时放在<code>请求头</code>里面）</p>
+<p><code>Etag/If-None-Match</code>：<code>Etag/If-None-Match</code>也要配合<code>Cache-Control</code>使用。<br><code>Etag</code>：服务器响应请求时，告诉浏览器当前资源在服务器的唯一标识（生成规则由服务器决定）。</p>
+<blockquote>
+<p><code>Apache</code>中，<code>ETag</code>的值，默认是对文件的索引节（INode），大小（Size）和最后修改时间（MTime）进行<code>Hash</code>后得到的。</p>
+</blockquote>
+<p><code>If-None-Match</code>：当资源过期时（使用<code>Cache-Control</code>标识的<code>max-age</code>），发现资源具有<code>Etag</code>声明，则再次向服务器请求时带上头<code>If-None-Match</code> （<code>Etag</code>的值）。服务器收到请求后发现有头<code>If-None-Match</code> 则与被请求资源的相应校验串进行比对，决定返回<code>200</code>或<code>304</code>。<br><code>Etag</code>是服务器自动生成或者由开发者生成的对应资源在服务器端的唯一标识符，能够更加准确的控制缓存。</p>
+<blockquote>
+<p><code>Last-Modified</code>与<code>ETag</code>一起使用时，服务器会优先验证<code>ETag</code>。</p>
+</blockquote>
+<h1 id="用户行为对缓存的影响"><a href="#用户行为对缓存的影响" class="headerlink" title="用户行为对缓存的影响"></a>用户行为对缓存的影响</h1><p>用户使用不同操作刷新网页，对浏览器使用的缓存策略也有影响。<br>|用户操作|Expires/Cache-control|Last_modified/Etag|<br>|—-|—-|——|<br>|地址栏输入网址|有效|有效|<br>|链接跳转|有效|有效|<br>|前进、后退|有效|有效|<br>|F5刷新|无效（设置max-age=0）|有效|<br>|Ctrl+F5刷新|无效（重置为no-cache）|无效（请求头丢弃）|</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>CLAY</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="ovenzeze.github.io/cache-control-in-browser/" title="浏览器的缓存管理">ovenzeze.github.io/cache-control-in-browser/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/浏览器缓存/" rel="tag"># 浏览器缓存</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/share-of-my-study-experience-in-xian-fontend-conmunication/" rel="next" title="西安初级前端群分享">
+                <i class="fa fa-chevron-left"></i> 西安初级前端群分享
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/a-phone-interview-of-aliyun/" rel="prev" title="记第一次阿里电话面试">
+                记第一次阿里电话面试 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpeg"
+                alt="CLAY" />
+            
+              <p class="site-author-name" itemprop="name">CLAY</p>
+              <p class="site-description motion-element" itemprop="description">技术，音乐和生活。<br>Free  Open  Share</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">15</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/ovenzeze" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:ovenzeze@qq.com" target="_blank" title="Mail"><i class="fa fa-fw fa-envelope"></i>Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#浏览器端缓存分类"><span class="nav-number">1.</span> <span class="nav-text">浏览器端缓存分类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#设置缓存的几种方式"><span class="nav-number">2.</span> <span class="nav-text">设置缓存的几种方式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#强缓存"><span class="nav-number">3.</span> <span class="nav-text">强缓存</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#协商缓存"><span class="nav-number">4.</span> <span class="nav-text">协商缓存</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#用户行为对缓存的影响"><span class="nav-number">5.</span> <span class="nav-text">用户行为对缓存的影响</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heartbeat"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CLAY</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.4.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.4.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.4.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.4.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.4.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  
+  
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'i0SA4LOQInR8ngFx36fhlm0m-gzGzoHsz',
+        appKey: 'rD8FtGSl0WaXjfp6kItztJQo',
+        placeholder: '你有什么想对我说的？',
+        avatar:'mm',
+        meta:guest,
+        pageSize:'5' || 10,
+        visitor: true
+    });
+  </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.4.1" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.4.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.4.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.4.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.4.1" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.4.1',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="最近看继承相关的知识时，有几种方法都用到了call,于是了解了一下。顺带发现了apply和bind。但是网上的教程大多写的不是非常清楚。所以自己总结了一下。JavaScript是动态编程语言，存在创建时上下文、运行时上下文，并且这些上下文都是可以动态改变的。而call、apply和bind的作用就是动态的改变上下文。call,apply的作用是完全一样的，只是用法不一样。都是改变this的指向,而">
+<meta name="keywords" content="this">
+<meta property="og:type" content="article">
+<meta property="og:title" content="call,apply,bind用法和意义">
+<meta property="og:url" content="ovenzeze.github.io/use-of-call-apply-bind/index.html">
+<meta property="og:site_name" content="CLAY的个人博客">
+<meta property="og:description" content="最近看继承相关的知识时，有几种方法都用到了call,于是了解了一下。顺带发现了apply和bind。但是网上的教程大多写的不是非常清楚。所以自己总结了一下。JavaScript是动态编程语言，存在创建时上下文、运行时上下文，并且这些上下文都是可以动态改变的。而call、apply和bind的作用就是动态的改变上下文。call,apply的作用是完全一样的，只是用法不一样。都是改变this的指向,而">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-09-27T10:13:34.147Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="call,apply,bind用法和意义">
+<meta name="twitter:description" content="最近看继承相关的知识时，有几种方法都用到了call,于是了解了一下。顺带发现了apply和bind。但是网上的教程大多写的不是非常清楚。所以自己总结了一下。JavaScript是动态编程语言，存在创建时上下文、运行时上下文，并且这些上下文都是可以动态改变的。而call、apply和bind的作用就是动态的改变上下文。call,apply的作用是完全一样的，只是用法不一样。都是改变this的指向,而">
+
+
+
+
+
+
+  <link rel="canonical" href="ovenzeze.github.io/use-of-call-apply-bind/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>call,apply,bind用法和意义 | CLAY的个人博客</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">CLAY的个人博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-时间线">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />时间线</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-关于我">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="ovenzeze.github.io/use-of-call-apply-bind/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CLAY">
+      <meta itemprop="description" content="技术，音乐和生活。<br>Free  Open  Share">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="CLAY的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">call,apply,bind用法和意义
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2016-10-26 21:31:13" itemprop="dateCreated datePublished" datetime="2016-10-26T21:31:13+08:00">2016-10-26</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-09-27 18:13:34" itemprop="dateModified" datetime="2018-09-27T18:13:34+08:00">2018-09-27</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/基础知识/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/use-of-call-apply-bind/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/use-of-call-apply-bind/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/use-of-call-apply-bind/" class="leancloud_visitors" data-flag-title="call,apply,bind用法和意义">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数：</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近看继承相关的知识时，有几种方法都用到了<code>call</code>,于是了解了一下。顺带发现了<code>apply</code>和<code>bind</code>。但是网上的教程大多写的不是非常清楚。所以自己总结了一下。<br><code>JavaScript</code>是动态编程语言，存在创建时上下文、运行时上下文，并且这些上下文都是可以动态改变的。而<code>call</code>、<code>apply</code>和<code>bind</code>的作用就是动态的改变上下文。<br>call,apply的作用是完全一样的，只是用法不一样。都是改变this的指向,而bind基本作用也一样，但是和他们有一点不同，待会我们把它分开来解释。<br><a id="more"></a></p>
+<h1 id="1：call、apply的用法和意义"><a href="#1：call、apply的用法和意义" class="headerlink" title="1：call、apply的用法和意义"></a>1：call、apply的用法和意义</h1><p><code>call, apply</code>都属于<code>Function.prototype</code>的一个方法,它是<code>JavaScript</code>引擎内在实现的,因为属于<code>Function.prototype</code>,所以每个<code>Function</code>对象实例,也就是每个方法都有<code>call, apply</code>属性.<br>基本用法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">obj.call(thisObj, arg1, arg2, ...);</div><div class="line">obj.apply(thisObj, [arg1, arg2, ...]);</div></pre></td></tr></table></figure></p>
+<p>将<code>obj</code>的属性和方法绑定到<code>thisObj</code>上，即将<code>obj</code>的运行时上下文指向<code>thisObj</code>,或者说此时<code>thisObj</code>继承了<code>obj</code>的属性和方法。</p>
+<p>一个常用的场景，我们使用使用<code>getElementsByTagName</code>或者<code>getElementsByClassName</code>得到的是一个类数组，具有数组的<code>length</code>使用下标访问等特性，但是没有数组的增删改查、排序等方法。我们就可以使用<code>call</code>或<code>apply</code>使其使用这些方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">let eleNodes = document.getElementsByTagName(&quot;a&quot;);</div><div class="line">Array.prototype.slice.call(eleNodes);</div><div class="line">//通过调用数组原型上的slice方法将类数组转换成数组，就具有了数组的所有方法</div></pre></td></tr></table></figure></p>
+<p>常用的一些用法：<br>1：合并几个数组<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">var array1 = [12 , &quot;foo&quot; , &#123;name &quot;Joe&quot;&#125; , -2458];</div><div class="line">var array2 = [&quot;Doe&quot; , 555 , 100];</div><div class="line">Array.prototype.push.apply(array1, array2);</div><div class="line">/* array1 值为  [12 , &quot;foo&quot; , &#123;name &quot;Joe&quot;&#125; , -2458 , &quot;Doe&quot; , 555 , 100] */</div></pre></td></tr></table></figure></p>
+<p>2：找出数组中的最大最小值<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">var  numbers = [5, 458 , 120 , -215 ];</div><div class="line">var maxInNumbers = Math.max.apply(Math, numbers),   //458</div><div class="line">    maxInNumbers = Math.max.call(Math,5, 458 , 120 , -215); //458</div></pre></td></tr></table></figure></p>
+<p>3：验证是否是数组(要求没有重写toString方法)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">functionisArray(obj)&#123;</div><div class="line">    return Object.prototype.toString.call(obj) === &apos;[object Array]&apos; ;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>区别：<br>唯一区别是<code>apply</code>接受的是数组参数，<code>call</code>接受的是连续参数。所以当传入的参数数目不确定时，多使用<code>apply</code>。<br>例子：定义log代理console.log方法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">function log(msg)　&#123;</div><div class="line">  console.log(msg);</div><div class="line">&#125;</div><div class="line">log(1);    </div><div class="line">//1</div><div class="line">log(1,2);   </div><div class="line">//1</div></pre></td></tr></table></figure></p>
+<p>但是有个缺点，只能输出一个参数，如果有多个参数怎么办呢？<br>使用<code>call</code>或<code>apply</code>就可以很好地解决：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">function log()&#123;</div><div class="line">  console.log.apply(console, arguments);</div><div class="line">&#125;;</div><div class="line">log(1);    //1</div><div class="line">log(1,2);    //1 2</div></pre></td></tr></table></figure></p>
+<p>如果，继续希望每个输出之前带有特定前缀或后缀怎么办呢？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">function log()&#123;</div><div class="line">  var args = Array.prototype.slice.call(arguments);</div><div class="line">  args.unshift(&apos;(app)&apos;);</div><div class="line"> </div><div class="line">  console.log.apply(console, args);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>通过使用<code>Array</code>原型上的<code>slice</code>方法将类数组<code>arguments</code>转换成数组，再使用数组的<code>unshift</code>方法就可以达到。</p>
+<h1 id="2：bind的用法和意义"><a href="#2：bind的用法和意义" class="headerlink" title="2：bind的用法和意义"></a>2：bind的用法和意义</h1><p><code>bind</code>和<code>call,apply</code>的作用很类似，都是改变<code>this</code>的指向，但是又不完全相同。<br>我们看一下MDN的解释：</p>
+<blockquote>
+<p>bind()方法会创建一个新函数，当这个新函数被调用时，它的this值是传递给bind()的第一个参数, 它的参数是bind()的其他参数和其原本的参数.</p>
+</blockquote>
+<p>语法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">fun.bind(thisArg[, arg1[, arg2[, ...]]])</div></pre></td></tr></table></figure></p>
+<p>在一般的情况下，我们通常会使用一个变量来保存当前环境的<code>this</code>指向避免函数调用对象发生改变时，无法使用我们想要使用的<code>this</code>上下文环境。<br>比如这种情况：创建绑定情况<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">this.x = 9;</div><div class="line">var module = &#123;</div><div class="line">  x: 81,</div><div class="line">  getX: function() &#123; return this.x; &#125;</div><div class="line">&#125;;</div><div class="line"> </div><div class="line">module.getX(); </div><div class="line">// 返回 81</div><div class="line"> </div><div class="line">var retrieveX = module.getX;</div><div class="line">retrieveX(); </div><div class="line">// 返回 9, 在这种情况下，&quot;this&quot;指向全局作用域</div><div class="line"> </div><div class="line">// 创建一个新函数，将&quot;this&quot;绑定到module对象</div><div class="line">// 新手可能会被全局的x变量和module里的属性x所迷惑</div><div class="line">var boundGetX = retrieveX.bind(module);</div><div class="line">boundGetX(); // 返回 81</div></pre></td></tr></table></figure></p>
+<p>当使用<code>bind</code>时，就可以更优雅的使用这种情况：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">var foo = &#123;</div><div class="line">    bar : 1,</div><div class="line">    eventBind: function()&#123;</div><div class="line">        $(&apos;.someClass&apos;).on(&apos;click&apos;,function(event) &#123;</div><div class="line">            console.log(this.bar);      </div><div class="line">         //1</div><div class="line">        &#125;.bind(this));</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><code>bind()</code> 创建了一个函数，当这个click事件绑定在被调用的时候，它的 this 关键词会被设置成被传入的值（这里指调用<code>bind()</code>时传入的参数）。因此，这里我们传入想要的上下文<code>this</code>(其实就是<code>foo</code>)，到<code>bind()</code>函数中。然后，当回调函数被执行的时候，<code>this</code>便指向<code>foo</code>对象。<br>下面一个例子是配合<code>setTimeout</code>使用：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">function LateBloomer() &#123;</div><div class="line">  this.petalCount = Math.ceil(Math.random() * 12) + 1;</div><div class="line">&#125;</div><div class="line"> </div><div class="line">// Declare bloom after a delay of 1 second</div><div class="line">LateBloomer.prototype.bloom = function() &#123;</div><div class="line">  window.setTimeout(this.declare.bind(this), 1000);</div><div class="line">&#125;;</div><div class="line"> </div><div class="line">LateBloomer.prototype.declare = function() &#123;</div><div class="line">  console.log(&apos;I am a beautiful flower with &apos; +</div><div class="line">    this.petalCount + &apos; petals!&apos;);</div><div class="line">&#125;;</div><div class="line"> </div><div class="line">var flower = new LateBloomer();</div><div class="line">flower.bloom();  // 一秒钟后, 调用&apos;declare&apos;方法</div></pre></td></tr></table></figure></p>
+<p>在默认情况下，使用<code>window.setTimeout()</code>时，<code>this</code>关键字会指向 <code>window</code>（或全局）对象。当使用类的方法时，需要 <code>this</code>引用类的实例，你可能需要显式地把 this 绑定到回调函数以便继续使用实例.<br>快捷调用的例子：<br>在你想要为一个需要特定的 <code>this</code> 值的函数创建一个捷径的时候，比如你想要随时可以在<code>arguments</code>上使用<code>Array</code>的<code>slice</code>方法。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">var unboundSlice = Array.prototype.slice;</div><div class="line">var slice = Function.prototype.call.bind(unboundSlice);</div><div class="line"></div><div class="line">slice(arguments);</div></pre></td></tr></table></figure></p>
+<h1 id="3：call-apply-bind三者的区别"><a href="#3：call-apply-bind三者的区别" class="headerlink" title="3：call apply bind三者的区别"></a>3：call apply bind三者的区别</h1><p>来看这个例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">var obj = &#123;</div><div class="line">    x: 81,</div><div class="line">&#125;;</div><div class="line"> </div><div class="line">var foo = &#123;</div><div class="line">    getX: function() &#123;</div><div class="line">        return this.x;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"> </div><div class="line">console.log(foo.getX.bind(obj)());  </div><div class="line">//81</div><div class="line">console.log(foo.getX.call(obj));    </div><div class="line">//81</div><div class="line">console.log(foo.getX.apply(obj));   </div><div class="line">//81</div></pre></td></tr></table></figure></p>
+<p>三个输出的都是81，但是注意看使用 <code>bind()</code>方法的，他后面多了对括号。<br> 也就是说，区别是，当你希望改变上下文环境之后并非立即执行，而是回调执行的时候，使用 <code>bind()</code> 方法。而 <code>apply/call</code> 则会立即执行函数。也就是说bind绑定的是函数的引用，而<code>call</code>和<code>apply</code>是绑定并立即执行，并且执行完就会销毁。</p>
+<h1 id="4：总结"><a href="#4：总结" class="headerlink" title="4：总结"></a>4：总结</h1><p>总结一下就是：</p>
+<ul>
+<li><code>apply 、 call 、bind</code>三者都是用来改变函数的this对象的指向的；<br>*<code>apply 、 call 、bind</code> 三者第一个参数都是this要指向的对象，也就是想指定的上下文；</li>
+<li><code>apply 、 call 、bind</code> 三者都可以利用后续参数传参；</li>
+<li><code>bind</code> 是返回对应函数的引用，便于稍后调用；</li>
+<li><code>apply 、call</code> 则是立即调用 。</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>CLAY</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="ovenzeze.github.io/use-of-call-apply-bind/" title="call,apply,bind用法和意义">ovenzeze.github.io/use-of-call-apply-bind/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/this/" rel="tag"># this</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/some-methods-of-inherit-prototype/" rel="next" title="JS实现继承的几种方式及其优缺点分析">
+                <i class="fa fa-chevron-left"></i> JS实现继承的几种方式及其优缺点分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/closure-and-recursion/" rel="prev" title="闭包和递归">
+                闭包和递归 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpeg"
+                alt="CLAY" />
+            
+              <p class="site-author-name" itemprop="name">CLAY</p>
+              <p class="site-description motion-element" itemprop="description">技术，音乐和生活。<br>Free  Open  Share</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">15</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/ovenzeze" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:ovenzeze@qq.com" target="_blank" title="Mail"><i class="fa fa-fw fa-envelope"></i>Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1：call、apply的用法和意义"><span class="nav-number">1.</span> <span class="nav-text">1：call、apply的用法和意义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2：bind的用法和意义"><span class="nav-number">2.</span> <span class="nav-text">2：bind的用法和意义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3：call-apply-bind三者的区别"><span class="nav-number">3.</span> <span class="nav-text">3：call apply bind三者的区别</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4：总结"><span class="nav-number">4.</span> <span class="nav-text">4：总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heartbeat"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CLAY</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.4.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.4.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.4.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.4.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.4.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  
+  
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'i0SA4LOQInR8ngFx36fhlm0m-gzGzoHsz',
+        appKey: 'rD8FtGSl0WaXjfp6kItztJQo',
+        placeholder: '你有什么想对我说的？',
+        avatar:'mm',
+        meta:guest,
+        pageSize:'5' || 10,
+        visitor: true
+    });
+  </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
