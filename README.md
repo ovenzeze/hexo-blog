@@ -1,5 +1,6 @@
-# use 
+# Use
 * Add new post
+> Master为生成的静态文件目录,Hexo文件保存在hexo分支
 ```
 生成新的文章文件：hexo new post title
 编辑新文章就可以
@@ -9,22 +10,29 @@ git commit -m "msg"
 git push origin master:hexo
 就可以将源文件上传到github
 ```
+* Hexo use
+```
+Hexo config: _config.yml
+Theme config: themes/next/_config.yml
+```
 * Use hexo-admin
 ```
 访问{{host}}/admin使用admin编辑文章
 ```
-* Transform to new devices
+# Transform to new devices
+* Clone Hexo Files
+>master分支为博客静态文件分支 hexo分支为源码分支
 ```
-# master分支为博客静态文件分支 hexo分支为源码分支
-全局安装git、npm、hexo使用hexo init初始化博客
-git clone原来的博客文件
-复制原来的
-package.json
-_config.yml(Hexo Config)
-themes/next/_config.yml(Theme Config)
-scaffolds(Post Models)
-source(Articles)
-文件夹覆盖新的博客目录
-使用hexo g -d 生成并部署新的博客
-会自动同时部署到Github和Coding的Pages服务上
+git clone git@github.com:ovenzeze/ovenzeze.github.io.git
+checkout hexo
+npm install
+git clone https://github.com/theme-next/hexo-theme-next themes/next
+```
+* Overwrite Theme Config
+```
+use next_config.yml overwrite themes/next/_config.yml
+```
+* Start Hexo
+```
+hexo s
 ```
