@@ -5,11 +5,11 @@ env:
   global:
   - USER=root
   - IP=111.231.253.254
-
 before_install:
+- openssl aes-256-cbc -K $encrypted_bebbbd09f6b0_key -iv $encrypted_bebbbd09f6b0_iv
+  -in id_rsa.enc -out ~\/.ssh/id_rsa -d
 - openssl aes-256-cbc -K $encrypted_3cd8d17a3bca_key -iv $encrypted_3cd8d17a3bca_iv
   -in id_rsa.enc -out ~/.ssh/id_rsa -d
-
 cache:
   directories:
   - node_modules
@@ -24,9 +24,8 @@ notifications:
 script:
 - hexo g
 - 
-
 after_success:
-  - chmod 600 ~/.ssh/id_rsa
-  - scp public/ -r $USER@$IP:/root/server/clay-blog/public
+- chmod 600 ~/.ssh/id_rsa
+- scp public/ -r $USER@$IP:/root/server/clay-blog/public
 addons:
   ssh_known_hosts: 111.231.253.254
