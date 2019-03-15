@@ -6,13 +6,13 @@ env:
   - USER=root
   - IP=111.231.253.254
 before_install:
-  - openssl aes-256-cbc -K $encrypted_bebbbd09f6b0_key -iv $encrypted_bebbbd09f6b0_iv
+- openssl aes-256-cbc -K $encrypted_bebbbd09f6b0_key -iv $encrypted_bebbbd09f6b0_iv
   -in id_rsa.enc -out ~/.ssh/id_rsa -d
 cache:
   directories:
   - node_modules
 install:
-  - npm install
+- npm install
 notifications:
   email:
     recipients:
@@ -20,9 +20,9 @@ notifications:
     on_success: always
     on_failure: always
 script:
-  - hexo g
+- hexo g
 after_success:
-  - chmod 600 ~/.ssh/id_rsa
-  - scp public/ -r $USER@$IP:/root/server/clay-blog/ovenzeze.github.io/public
+- chmod 600 ~/.ssh/id_rsa
+- scp public/ -r $USER@$IP:/root/server/clay-blog/ovenzeze.github.io/public
 addons:
   ssh_known_hosts: 111.231.253.254
