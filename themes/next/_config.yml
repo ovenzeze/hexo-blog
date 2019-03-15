@@ -168,8 +168,8 @@ menu_settings:
 # ---------------------------------------------------------------
 
 # Schemes
-# scheme: Muse
-scheme: Mist
+scheme: Muse
+#scheme: Mist
 #scheme: Pisces
 #scheme: Gemini
 
@@ -275,6 +275,7 @@ chat:
   enable: false
   #service: chatra
   #service: tidio
+  icon: comment # icon in Font Awesome 4, set false to disable icon
   text: Chat # button text, change it as you wish
 
 # ---------------------------------------------------------------
