@@ -21,7 +21,7 @@ Theme config: themes/next/_config.yml
 ```	
 # Transform to new devices	
 * Clone Hexo Files	
->master分支为博客静态文件分支 hexo分支为源码分支	
+>master分支为博客静态文件分支hexo分支为源码分支	
 ```	
 git clone git@github.com:ovenzeze/ovenzeze.github.io.git	
 checkout hexo	
