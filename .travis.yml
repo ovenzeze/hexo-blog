@@ -27,6 +27,6 @@ script:
 
 after_success:
   - chmod 600 ~/.ssh/id_rsa
-  - scp public -r $USER@$IP:/root/server/clay-blog/public
+  - scp public/ -r $USER@$IP:/root/server/clay-blog/public
 addons:
   ssh_known_hosts: 111.231.253.254
