@@ -1,7 +1,7 @@
 const Koa = require('Koa')
 const serve = require('koa-static-server')
 const startConfig = {
-    port: 9000
+    port: 8082
 }
 const appBlogIns = new Koa()
 appBlogIns.use(serve({ rootDir: 'public/', rootPath: '/' }))
