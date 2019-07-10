@@ -8,6 +8,6 @@ appBlogIns.use(serve({ rootDir: 'public/', rootPath: '/' }))
     // ================================================>>>>Start Server
 const init = async() => {
     appBlogIns.listen(startConfig.port)
-    console.log(`[HexoServer] Port: ${startConfig.port}`)
+    console.log(`[HexoServer]  git Port: ${startConfig.port}`)
 }
 init()
