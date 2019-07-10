@@ -1,4 +1,4 @@
-const Koa = require('Koa')
+const Koa = require('koa')
 const serve = require('koa-static-server')
 const startConfig = {
     port: 8082
