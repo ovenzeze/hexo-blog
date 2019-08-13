@@ -6,10 +6,8 @@ env:
   - USER=root
   - IP=132.232.119.172
 before_install:
-- openssl aes-256-cbc -K $encrypted_77250ec3da23_key -iv $encrypted_77250ec3da23_iv
-  -in id_rsa.enc -out ~\/.ssh/id_rsa -d
 - openssl aes-256-cbc -K $encrypted_bebbbd09f6b0_key -iv $encrypted_bebbbd09f6b0_iv
-  -in id_rsa.enc -out ~/.ssh/id_rsa -d
+  -in id_rsa.enc -out ~\/.ssh/id_rsa -d
 cache:
   directories:
   - node_modules
@@ -25,6 +23,6 @@ script:
 - hexo g
 after_success:
 - chmod 600 ~/.ssh/id_rsa
-- scp -r ./public  $USER@$IP:/root/server/hexo-blog/ovenzeze.github.io
+- scp -r ./public  $USER@$IP:/root/github/ovenzeze.github.io
 addons:
   ssh_known_hosts: 132.232.119.172
