@@ -26,4 +26,3 @@ after_success:
 - scp -r ./public  $USER@$IP:/github/ovenzeze.github.io
 addons:
   ssh_known_hosts: 132.232.119.172
-cdccd
