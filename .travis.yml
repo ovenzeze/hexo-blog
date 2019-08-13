@@ -23,6 +23,6 @@ script:
 - hexo g
 after_success:
 - chmod 600 ~/.ssh/id_rsa
-- scp -r ./public  $USER@$IP:/root/server/hexo-blog/ovenzeze.github.io
+- scp -r ./public  $USER@$IP:/root/github/ovenzeze.github.io
 addons:
   ssh_known_hosts: 132.232.119.172
