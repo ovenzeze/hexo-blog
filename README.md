@@ -7,8 +7,11 @@
 编辑完成使用hexo g -d就可以生成新文件并部署到服务器上	
 再使用git add *	
 git commit -m "msg"	
-git push origin master:hexo	
+git push origin hexo:hexo	
 就可以将源文件上传到github	
+已配置travis自动部署
+检测到PUSH后会自动生成文件并部署到腾讯云
+具体部署的文件夹和命令请参考travis.yml
 ```	
 * Hexo use	
 ```	

@@ -4,7 +4,7 @@ node_js:
 env:
   global:
   - USER=root
-  - IP=111.231.253.254
+  - IP=132.232.119.172
 before_install:
 - openssl aes-256-cbc -K $encrypted_bebbbd09f6b0_key -iv $encrypted_bebbbd09f6b0_iv
   -in id_rsa.enc -out ~/.ssh/id_rsa -d
@@ -25,4 +25,4 @@ after_success:
 - chmod 600 ~/.ssh/id_rsa
 - scp -r ./public  $USER@$IP:/root/server/hexo-blog/ovenzeze.github.io
 addons:
-  ssh_known_hosts: 111.231.253.254
+  ssh_known_hosts: 132.232.119.172
