@@ -1,6 +1,6 @@
 # Use	
 * Add new post	
-> Master为生成的静态文件目录,Hexo文件保存在hexo分支	
+> Master分支为生成的静态文件目录,Hexo分支为源文件
 ```	
 生成新的文章文件：hexo new post title	
 编辑新文章就可以	

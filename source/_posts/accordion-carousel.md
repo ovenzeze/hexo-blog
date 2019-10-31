@@ -8,6 +8,7 @@ categories: "常用组件"
 # 1：最终要实现的效果
 Github地址：[github.com/ovenzeze/AccordionCarousel](https://github.com/ovenzeze/AccordionCarousel)
 Demo地址：[http://urlc.cn/RCa7B2](http://123.206.204.163/AccordionCarousel/index.html)
+<!--more-->
 # 2：使用方法
 ```
 var carousel1 = new AccordionCarousel({
@@ -36,7 +37,6 @@ var carousel1 = new AccordionCarousel({
     }]
     });
 ```
-<!--more-->
 `new`一个`AccordionCarousel`实例，传入包裹轮播的`DIV`和每一张图片的链接和地址，会自动根据图片的数量来生成轮播图和指示器。由于用到了`Jquery`，所以要用`Jquery`的方式来传递参数。
 # 3：实现方案
 ## 3.1：整体布局

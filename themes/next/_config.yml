@@ -598,19 +598,19 @@ gitment:
   mint: true # RECOMMEND, A mint on Gitment, to support count, language and proxy_gateway
   count: true # Show comments count in post meta area
   lazy: false # Comments lazy loading with a button
-  cleanly: false # Hide 'Powered by ...' on footer, and more
+  cleanly: true # Hide 'Powered by ...' on footer, and more
   language: # Force language, or auto switch by theme
-  github_user: # MUST HAVE, Your Github Username
-  github_repo: # MUST HAVE, The name of the repo you use to store Gitment comments
-  client_id: # MUST HAVE, Github client id for the Gitment
-  client_secret: # EITHER this or proxy_gateway, Github access secret token for the Gitment
-  proxy_gateway: # Address of api proxy, See: https://github.com/aimingoo/intersect
-  redirect_protocol: # Protocol of redirect_uri with force_redirect_protocol when mint enabled
+  github_user: ovenzeze # MUST HAVE, Your Github Username
+  github_repo: https://github.com/ovenzeze/hexoBlog # MUST HAVE, The name of the repo you use to store Gitment comments
+  client_id: e3dad0bb7f0766b77a79 # MUST HAVE, Github client id for the Gitment
+  client_secret: cfa20c0751babb6ba7f17cbd27bb1c724970e75a # EITHER this or proxy_gateway, Github access secret token for the Gitment
+  proxy_gateway: https://gh-oauth.imsun.net # Address of api proxy, See: https://github.com/aimingoo/intersect
+  redirect_protocol: https # Protocol of redirect_uri with force_redirect_protocol when mint enabled
 
 # Gitalk
 # Demo: https://gitalk.gitxzhub.io
 gitalk:
-  enable: true
+  enable: false
   github_id: ovenzeze # Github repo owner
   repo:  ovenzeze.github.io # Repository name to store issues
   client_id: e3dad0bb7f0766b77a79 # Github Application Client ID
@@ -801,7 +801,7 @@ calendar:
 # See: https://github.com/theme-next/hexo-theme-next/blob/master/docs/ALGOLIA-SEARCH.md
 # Dependencies: https://github.com/theme-next/theme-next-algolia-instant-search
 algolia_search:
-  enable: true
+  enable: false
   hits:
     per_page: 10
   labels:
