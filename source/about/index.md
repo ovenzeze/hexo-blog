@@ -10,7 +10,7 @@ comments: true
 对所有新奇的东西都抱有强烈的好奇心，立志成为一个平凡而不平庸的人。
 
 ### 联系方式
-你可以在github和instgram找到我，当然你有任何问题要和我探讨，也可以给我发邮件。
+你可以在github和inst找到我，当然你有任何问题要和我探讨，也可以给我发邮件。
 Github：ovenzeze
 Inst : oven_zeze
 E-mail : ovenzeze@qq.com
