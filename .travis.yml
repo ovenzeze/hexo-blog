@@ -8,22 +8,15 @@ env:
 before_install:
 - openssl aes-256-cbc -K $encrypted_77250ec3da23_key -iv $encrypted_77250ec3da23_iv
   -in id_rsa.enc -out ~/.ssh/id_rsa -d
-cache:
-  directories:
-  - node_modules
-install:
-- npm install
+after_success:
+- chmod 600 ~/.ssh/id_rsa
+- scp build.sh $USER@$IP:/github/hexo-blog
+- ssh $USER@$IP "cd ../github/hexo-blog && bash build.sh"
 notifications:
   email:
     recipients:
     - ovenzeze@qq.com
     on_success: always
     on_failure: always
-script:
-- hexo g
-after_success:
-- chmod 600 ~/.ssh/id_rsa
-- scp build.sh $USER@$IP:/github/hexo-blog
-- ssh $USER@$IP "cd ../github/hexo-blog && bash build.sh"
 addons:
   ssh_known_hosts: 132.232.119.172
